@@ -1,0 +1,290 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+// ---------------- CONCERT ----------------
+class Concert {
+    private String concertId;
+    private String artist;
+    private String genre;
+    private String venue;
+    private String date;
+    private String time;
+
+    public Concert(String concertId, String artist, String genre,
+                   String venue, String date, String time) {
+        this.concertId = concertId;
+        this.artist = artist;
+        this.genre = genre;
+        this.venue = venue;
+        this.date = date;
+        this.time = time;
+    }
+
+    public String getConcertId() {
+        return concertId;
+    }
+
+    public String getArtist() {
+        return artist;
+    }
+
+    public String getVenue() {
+        return venue;
+    }
+
+    public void displayConcert() {
+        System.out.println("\nConcert ID: " + concertId);
+        System.out.println("Artist: " + artist);
+        System.out.println("Genre: " + genre);
+        System.out.println("Venue: " + venue);
+        System.out.println("Date: " + date);
+        System.out.println("Time: " + time);
+    }
+}
+
+
+// ---------------- CONCERT SEAT ----------------
+class ConcertSeat {
+    private String seatNumber;
+    private String section;
+    private double price;
+    private boolean available;
+
+    public ConcertSeat(String seatNumber, String section, double price) {
+        this.seatNumber = seatNumber;
+        this.section = section;
+        this.price = price;
+        this.available = true;
+    }
+
+    public String getSeatNumber() {
+        return seatNumber;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public boolean reserve() {
+        if (available) {
+            available = false;
+            return true;
+        }
+
+        return false;
+    }
+
+    public void displaySeat() {
+        System.out.println(
+                seatNumber +
+                " | Section: " + section +
+                " | Price: $" + price +
+                " | " + (available ? "Available" : "Reserved")
+        );
+    }
+}
+
+
+// ---------------- CUSTOMER ----------------
+class ConcertCustomer {
+    private String customerId;
+    private String name;
+    private String email;
+
+    public ConcertCustomer(String customerId, String name, String email) {
+        this.customerId = customerId;
+        this.name = name;
+        this.email = email;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+}
+
+
+// ---------------- CONCERT RESERVATION ----------------
+class ConcertReservation {
+    private String reservationId;
+    private ConcertCustomer customer;
+    private Concert concert;
+    private ConcertSeat seat;
+
+    public ConcertReservation(String reservationId,
+                              ConcertCustomer customer,
+                              Concert concert,
+                              ConcertSeat seat) {
+
+        this.reservationId = reservationId;
+        this.customer = customer;
+        this.concert = concert;
+        this.seat = seat;
+    }
+
+    public void displayReservation() {
+        System.out.println("\n========== CONCERT RESERVATION ==========");
+        System.out.println("Reservation ID: " + reservationId);
+        System.out.println("Customer: " + customer.getName());
+        System.out.println("Email: " + customer.getEmail());
+        System.out.println("Artist: " + concert.getArtist());
+        System.out.println("Venue: " + concert.getVenue());
+        System.out.println("Seat: " + seat.getSeatNumber());
+        System.out.println("Price: $" + seat.getPrice());
+        System.out.println("=========================================");
+    }
+}
+
+
+// ---------------- MAIN APPLICATION ----------------
+public class ReservoConcerts {
+
+    public static void main(String[] args) {
+
+        Scanner scanner = new Scanner(System.in);
+
+        // Create concerts
+        Concert concert1 = new Concert(
+                "C001",
+                "The Weeknd",
+                "Pop",
+                "Little Caesars Arena",
+                "12/15/2026",
+                "8:00 PM"
+        );
+
+        Concert concert2 = new Concert(
+                "C002",
+                "Drake",
+                "Hip-Hop",
+                "Ford Field",
+                "12/20/2026",
+                "7:30 PM"
+        );
+
+        // Create seats
+        ConcertSeat seat1 = new ConcertSeat(
+                "A101",
+                "Floor",
+                250.00
+        );
+
+        ConcertSeat seat2 = new ConcertSeat(
+                "A102",
+                "Floor",
+                250.00
+        );
+
+        ConcertSeat seat3 = new ConcertSeat(
+                "B201",
+                "Lower Level",
+                150.00
+        );
+
+        ConcertSeat seat4 = new ConcertSeat(
+                "B202",
+                "Lower Level",
+                150.00
+        );
+
+        List<ConcertSeat> seats = new ArrayList<>();
+
+        seats.add(seat1);
+        seats.add(seat2);
+        seats.add(seat3);
+        seats.add(seat4);
+
+        // Display concerts
+        System.out.println("===== RESERVO CONCERTS & ENTERTAINMENT =====");
+
+        System.out.println("\nAvailable Concerts:");
+
+        concert1.displayConcert();
+        concert2.displayConcert();
+
+        // Customer information
+        System.out.println("\nEnter Customer Information");
+
+        System.out.print("Name: ");
+        String name = scanner.nextLine();
+
+        System.out.print("Email: ");
+        String email = scanner.nextLine();
+
+        ConcertCustomer customer = new ConcertCustomer(
+                "CU001",
+                name,
+                email
+        );
+
+        // Select concert
+        System.out.print("\nEnter Concert ID: ");
+        String concertId = scanner.nextLine();
+
+        Concert selectedConcert;
+
+        if (concertId.equals("C001")) {
+            selectedConcert = concert1;
+        } else if (concertId.equals("C002")) {
+            selectedConcert = concert2;
+        } else {
+            System.out.println("Invalid Concert ID.");
+            scanner.close();
+            return;
+        }
+
+        // Display available seats
+        System.out.println("\nAvailable Seats:");
+
+        for (ConcertSeat seat : seats) {
+            seat.displaySeat();
+        }
+
+        // Select seat
+        System.out.print("\nEnter Seat Number: ");
+        String selectedSeat = scanner.nextLine();
+
+        ConcertSeat chosenSeat = null;
+
+        for (ConcertSeat seat : seats) {
+
+            if (seat.getSeatNumber().equalsIgnoreCase(selectedSeat)) {
+                chosenSeat = seat;
+                break;
+            }
+        }
+
+        // Make reservation
+        if (chosenSeat != null && chosenSeat.reserve()) {
+
+            ConcertReservation reservation =
+                    new ConcertReservation(
+                            "CR001",
+                            customer,
+                            selectedConcert,
+                            chosenSeat
+                    );
+
+            System.out.println("\nConcert reservation successful!");
+
+            reservation.displayReservation();
+
+        } else {
+
+            System.out.println(
+                    "\nReservation failed. " +
+                    "The seat is unavailable or does not exist."
+            );
+        }
+
+        scanner.close();
+    }
+}
