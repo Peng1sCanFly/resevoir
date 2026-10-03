@@ -417,7 +417,7 @@ public class App extends Application {
                 new Label("Welcome!");
 
         Button eventsButton =
-                new Button("Events");
+                new Button("Join Local Events");
 
         Button createEventButton =
                 new Button("Create Event");

@@ -486,15 +486,6 @@ public class CategoryEventsScreen {
         // BUTTONS
         // =====================================================
 
-        Button calculateButton =
-                new Button(
-                        "Calculate Total"
-                );
-
-        calculateButton.setPrefSize(
-                250,
-                40
-        );
 
         Button paymentButton =
                 new Button(
@@ -614,61 +605,117 @@ public class CategoryEventsScreen {
         // CALCULATE TOTAL
         // =====================================================
 
-        calculateButton.setOnAction(action -> {
+        quantityField.textProperty().addListener((observable, oldValue, newValue) -> {
 
-            try {
+    try {
 
-                int quantity =
-                        Integer.parseInt(
-                                quantityField
-                                        .getText()
-                                        .trim()
-                        );
-
-                double cost =
-                        Double.parseDouble(
-                                costField
-                                        .getText()
-                                        .trim()
-                        );
-
-                if (quantity <= 0) {
-
-                    messageLabel.setText(
-                            "Please enter at least 1 person/ticket."
-                    );
-
-                    return;
-                }
-
-                if (cost < 0) {
-
-                    messageLabel.setText(
-                            "Cost cannot be negative."
-                    );
-
-                    return;
-                }
-
-                double total =
-                        quantity * cost;
-
-                totalLabel.setText(
-                        String.format(
-                                "Total: $%.2f",
-                                total
-                        )
+        int quantity =
+                Integer.parseInt(
+                        quantityField
+                                .getText()
+                                .trim()
                 );
 
-                messageLabel.setText("");
-
-            } catch (NumberFormatException e) {
-
-                messageLabel.setText(
-                        "Please enter valid numbers."
+        double cost =
+                Double.parseDouble(
+                        costField
+                                .getText()
+                                .trim()
                 );
-            }
-        });
+
+        if (quantity <= 0) {
+
+            messageLabel.setText(
+                    "Please enter at least 1 person/ticket."
+            );
+
+            return;
+        }
+
+        if (cost < 0) {
+
+            messageLabel.setText(
+                    "Cost cannot be negative."
+            );
+
+            return;
+        }
+
+        double total =
+                quantity * cost;
+
+        totalLabel.setText(
+                String.format(
+                        "Total: $%.2f",
+                        total
+                )
+        );
+
+        messageLabel.setText("");
+
+    } catch (NumberFormatException e) {
+
+        messageLabel.setText(
+                "Please enter valid numbers."
+        );
+    }
+});
+
+costField.textProperty().addListener((observable, oldValue, newValue) -> {
+
+    try {
+
+        int quantity =
+                Integer.parseInt(
+                        quantityField
+                                .getText()
+                                .trim()
+                );
+
+        double cost =
+                Double.parseDouble(
+                        costField
+                                .getText()
+                                .trim()
+                );
+
+        if (quantity <= 0) {
+
+            messageLabel.setText(
+                    "Please enter at least 1 person/ticket."
+            );
+
+            return;
+        }
+
+        if (cost < 0) {
+
+            messageLabel.setText(
+                    "Cost cannot be negative."
+            );
+
+            return;
+        }
+
+        double total =
+                quantity * cost;
+
+        totalLabel.setText(
+                String.format(
+                        "Total: $%.2f",
+                        total
+                )
+        );
+
+        messageLabel.setText("");
+
+    } catch (NumberFormatException e) {
+
+        messageLabel.setText(
+                "Please enter valid numbers."
+        );
+    }
+});
 
         // =====================================================
         // CONTINUE TO PAYMENT
@@ -1046,7 +1093,6 @@ public class CategoryEventsScreen {
                         seatingButton,
                         seatingLabel,
 
-                        calculateButton,
                         totalLabel,
 
                         paymentButton,

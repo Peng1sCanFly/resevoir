@@ -10,6 +10,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+//This file may be erroneus
 public class ReservationScreen {
 
     private Stage stage;
@@ -104,13 +105,6 @@ public class ReservationScreen {
         Label messageLabel =
                 new Label();
 
-        Button calculateButton =
-                new Button("Calculate Total");
-
-        calculateButton.setPrefSize(
-                250,
-                40
-        );
 
         Button confirmButton =
                 new Button("Confirm Reservation");
@@ -127,57 +121,6 @@ public class ReservationScreen {
                 250,
                 40
         );
-
-        calculateButton.setOnAction(action -> {
-
-            try {
-
-                int quantity =
-                        Integer.parseInt(
-                                quantityField
-                                        .getText()
-                                        .trim()
-                        );
-
-                if (quantity <= 0) {
-
-                    messageLabel.setText(
-                            "Please enter at least 1 person."
-                    );
-
-                    return;
-                }
-
-                if (quantity
-                        > selectedEvent.getCapacity()) {
-
-                    messageLabel.setText(
-                            "Not enough availability."
-                    );
-
-                    return;
-                }
-
-                double total =
-                        quantity
-                        * selectedEvent.getPrice();
-
-                totalLabel.setText(
-                        String.format(
-                                "Total: $%.2f",
-                                total
-                        )
-                );
-
-                messageLabel.setText("");
-
-            } catch (NumberFormatException e) {
-
-                messageLabel.setText(
-                        "Please enter a valid number."
-                );
-            }
-        });
 
         confirmButton.setOnAction(action -> {
 
@@ -233,7 +176,7 @@ public class ReservationScreen {
                 );
 
                 quantityField.setDisable(true);
-                calculateButton.setDisable(true);
+
                 confirmButton.setDisable(true);
 
             } catch (NumberFormatException e) {
@@ -260,7 +203,6 @@ public class ReservationScreen {
                         priceLabel,
                         quantityLabel,
                         quantityField,
-                        calculateButton,
                         totalLabel,
                         confirmButton,
                         messageLabel,
