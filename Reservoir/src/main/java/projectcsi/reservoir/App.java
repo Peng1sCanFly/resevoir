@@ -1,6 +1,7 @@
 package projectcsi.reservoir;
 
 import java.util.ArrayList;
+
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -9,7 +10,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
 public class App extends Application {
@@ -399,6 +405,7 @@ public class App extends Application {
         );
     }
 
+
     // =====================================================
     // DASHBOARD
     // =====================================================
@@ -435,7 +442,67 @@ public class App extends Application {
 
         Button logoutButton =
                 new Button("Logout");
+        
+        //Calendar
+        java.time.YearMonth currentMonth = java.time.YearMonth.now();
+        java.time.LocalDate today = java.time.LocalDate.now();
+        GridPane calendar = new GridPane();
+        calendar.setHgap(10);
+        calendar.setVgap(10);
+        calendar.setAlignment(Pos.CENTER);
+        //Month heading
+        Label monthLabel = new Label(
+                currentMonth.getMonth().toString()+ " " + currentMonth.getYear());
 
+        monthLabel.setStyle("-fx-font-size: 20px;"+ "-fx-font-weight: bold;");
+        
+        //Weekday headings
+        String[] weekdays = {"Sun", "Mon", "Tue", "Wed","Thu", "Fri", "Sat"};
+
+        for (int col = 0; col < 7; col++) {
+                Label weekday = new Label(weekdays[col]);
+                calendar.add(weekday, col, 0);
+        }
+
+        //Find the first weekday of the month
+        int startDay = currentMonth.atDay(1).getDayOfWeek().getValue() % 7;
+
+        //Add the numbered days
+        for (int day = 1;
+                day <= currentMonth.lengthOfMonth();
+                day++) {
+
+        java.time.LocalDate date = currentMonth.atDay(day);
+
+        Label dateLabel = new Label(String.valueOf(day));
+
+        dateLabel.setMinSize(30, 30);
+        dateLabel.setAlignment(Pos.CENTER);
+
+        //Highlight today's date
+        if (date.equals(today)) {
+                dateLabel.setStyle(
+                        "-fx-background-color: yellow;" + "-fx-font-weight: bold;" + "-fx-background-radius: 15;");
+        }
+
+        int index = startDay + day - 1;
+
+        calendar.add(
+                dateLabel,
+                index % 7,
+                (index / 7) + 1
+        );
+        }
+
+        // Put the heading above the calendar
+        VBox calendarBox = new VBox(
+                10,
+                monthLabel,
+                calendar
+        );
+
+        calendarBox.setAlignment(Pos.CENTER);
+        
         eventsButton.setPrefSize(
                 300,
                 40
@@ -530,27 +597,102 @@ public class App extends Application {
                         showWelcomeScreen()
         );
 
-        VBox layout =
+
+       //ACCOUNT BUTTON
+
+        //Load AccountImage.png from the mediaContent folder
+        Image accountImage = new Image(
+        new java.io.File(
+                "C:\\Users\\gpeng\\Desktop\\resevoir-main\\Reservoir\\mediaContent\\AccountImage.png" ).toURI().toString(),
+                40,
+                40,
+                true,
+                true
+        );
+
+        //Display the image
+        ImageView accountImageView = new ImageView(accountImage);
+        accountImageView.setFitWidth(40);
+        accountImageView.setFitHeight(40);
+        accountImageView.setPreserveRatio(false);
+
+        //Make the content the correct size for the border
+        Circle clip = new Circle(20, 20, 20);
+        accountImageView.setClip(clip);
+
+        //Create the button
+        Button accountButton = new Button();
+        accountButton.setGraphic(accountImageView);
+        accountButton.setPrefSize(44, 44);
+        accountButton.setMinSize(44, 44);
+        accountButton.setMaxSize(44, 44);
+
+
+        //Add new style to the button
+        accountButton.setStyle(
+        "-fx-background-color: transparent;" +
+        "-fx-padding: 2;" +
+        "-fx-cursor: hand;" +
+        "-fx-border-color: black;" +
+        "-fx-border-width: 1;" +
+        "-fx-border-radius: 22;" +
+        "-fx-background-radius: 22;"
+        );
+
+        //Navigate to the account page when clicked
+        accountButton.setOnAction(event -> {showAccountPage();});
+        //======================Main Menu===============================
+        //Create buttons list
+        VBox sublayout =
                 new VBox(
                         12,
-                        title,
-                        welcome,
                         eventsButton,
                         createEventButton,
                         reservationsButton,
                         myEventsButton,
                         favoritesButton,
                         logoutButton
-                );
+                        
+                );        
 
-        layout.setAlignment(
-                Pos.CENTER
+        //Add the calender formating
+        VBox calenderlayout = new VBox(
+                12,
+                calendarBox
         );
+
+
+        //Layout for the buttons and calendar (The Content)
+        HBox contentLayout = new HBox(
+                50,
+                sublayout,
+                calenderlayout
+        );
+        contentLayout.setAlignment(Pos.CENTER);
+        HBox headerLayout = new HBox(
+                50,
+                accountButton,
+                title
+                
+        );
+        headerLayout.setAlignment(Pos.CENTER);
+        // Combine the sublayout and calendar layout into a single HBox (Aligning Left and Right) also adds in the "Title" and "Welcome" labels to the top of the screen
+        VBox layout = new VBox(
+                50,
+                headerLayout,
+                welcome,
+                contentLayout
+        );
+        layout.setAlignment(Pos.CENTER);
 
         layout.setPadding(
                 new Insets(30)
         );
 
+//================================================================
+
+
+        //create scene
         stage.setScene(
                 new Scene(
                         layout,
@@ -559,6 +701,50 @@ public class App extends Application {
                 )
         );
     }
+    // =====================================================
+    // ACCOUNT PAGE
+    // =====================================================
+        private void showAccountPage() {
+                Label title =
+                        new Label("ACCOUNT");
+
+                title.setStyle(
+                        "-fx-font-size: 32px;"
+                        + "-fx-font-weight: bold;"
+                );
+
+                Button backButton =
+                        new Button("Back to Dashboard");
+
+                backButton.setPrefSize(
+                        200,
+                        35
+                );
+
+                backButton.setOnAction(
+                        action ->
+                                showDashboard()
+                );
+
+                VBox layout =
+                        new VBox(
+                                15,
+                                title,
+                                backButton
+                        );
+
+                layout.setAlignment(Pos.CENTER);
+
+                layout.setPadding(new Insets(40));
+
+                stage.setScene(
+                        new Scene(
+                                layout,
+                                900,
+                                650
+                        )
+                );
+        }    
 
     // =====================================================
     // EVENTS
