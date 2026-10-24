@@ -1,0 +1,1143 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+// =====================================================
+// TEAM
+// =====================================================
+class Team {
+    private String teamId;
+    private String name;
+    private String city;
+    private String sport;
+    private String league;
+
+    public Team(String teamId, String name, String city,
+                String sport, String league) {
+        this.teamId = teamId;
+        this.name = name;
+        this.city = city;
+        this.sport = sport;
+        this.league = league;
+    }
+
+    public String getTeamId() {
+        return teamId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public String getSport() {
+        return sport;
+    }
+
+    public String getLeague() {
+        return league;
+    }
+
+    public String getFullName() {
+        return city + " " + name;
+    }
+
+    @Override
+    public String toString() {
+        return getFullName() + " | " + league + " | " + sport;
+    }
+}
+
+
+// =====================================================
+// VENUE
+// =====================================================
+class SportsVenue {
+    private String venueId;
+    private String name;
+    private String city;
+    private int capacity;
+
+    public SportsVenue(String venueId, String name,
+                       String city, int capacity) {
+        this.venueId = venueId;
+        this.name = name;
+        this.city = city;
+        this.capacity = capacity;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public int getCapacity() {
+        return capacity;
+    }
+
+    @Override
+    public String toString() {
+        return name + " - " + city +
+                " | Capacity: " + capacity;
+    }
+}
+
+
+// =====================================================
+// SPORTS GAME
+// =====================================================
+class SportsGame {
+    private String gameId;
+    private Team homeTeam;
+    private Team awayTeam;
+    private SportsVenue venue;
+    private String date;
+    private String time;
+    private List<SportsSeat> seats;
+
+    public SportsGame(String gameId,
+                      Team homeTeam,
+                      Team awayTeam,
+                      SportsVenue venue,
+                      String date,
+                      String time) {
+
+        this.gameId = gameId;
+        this.homeTeam = homeTeam;
+        this.awayTeam = awayTeam;
+        this.venue = venue;
+        this.date = date;
+        this.time = time;
+        this.seats = new ArrayList<>();
+
+        generateSeats();
+    }
+
+    private void generateSeats() {
+
+        // Courtside / Premium
+        for (int i = 1; i <= 5; i++) {
+            seats.add(new SportsSeat(
+                    "VIP-" + i,
+                    "VIP / Courtside",
+                    500.00
+            ));
+        }
+
+        // Lower Level
+        for (int i = 1; i <= 10; i++) {
+            seats.add(new SportsSeat(
+                    "LOW-" + i,
+                    "Lower Level",
+                    250.00
+            ));
+        }
+
+        // Club Level
+        for (int i = 1; i <= 10; i++) {
+            seats.add(new SportsSeat(
+                    "CLUB-" + i,
+                    "Club Level",
+                    175.00
+            ));
+        }
+
+        // Upper Level
+        for (int i = 1; i <= 15; i++) {
+            seats.add(new SportsSeat(
+                    "UP-" + i,
+                    "Upper Level",
+                    75.00
+            ));
+        }
+    }
+
+    public String getGameId() {
+        return gameId;
+    }
+
+    public Team getHomeTeam() {
+        return homeTeam;
+    }
+
+    public Team getAwayTeam() {
+        return awayTeam;
+    }
+
+    public SportsVenue getVenue() {
+        return venue;
+    }
+
+    public List<SportsSeat> getSeats() {
+        return seats;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void displayGame() {
+        System.out.println("\n--------------------------------");
+        System.out.println("Game ID: " + gameId);
+        System.out.println(
+                awayTeam.getFullName() +
+                " @ " +
+                homeTeam.getFullName()
+        );
+        System.out.println("Sport: " + homeTeam.getSport());
+        System.out.println("League: " + homeTeam.getLeague());
+        System.out.println("Venue: " + venue.getName());
+        System.out.println("Location: " + venue.getCity());
+        System.out.println("Date: " + date);
+        System.out.println("Time: " + time);
+        System.out.println("--------------------------------");
+    }
+}
+
+
+// =====================================================
+// SPORTS SEAT
+// =====================================================
+class SportsSeat {
+
+    private String seatNumber;
+    private String section;
+    private double price;
+    private boolean available;
+
+    public SportsSeat(String seatNumber,
+                      String section,
+                      double price) {
+
+        this.seatNumber = seatNumber;
+        this.section = section;
+        this.price = price;
+        this.available = true;
+    }
+
+    public String getSeatNumber() {
+        return seatNumber;
+    }
+
+    public String getSection() {
+        return section;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public boolean reserve() {
+
+        if (available) {
+            available = false;
+            return true;
+        }
+
+        return false;
+    }
+
+    public void cancelReservation() {
+        available = true;
+    }
+
+    public void displaySeat() {
+
+        System.out.printf(
+                "%-10s | %-18s | $%-7.2f | %s%n",
+                seatNumber,
+                section,
+                price,
+                available ? "AVAILABLE" : "RESERVED"
+        );
+    }
+}
+
+
+// =====================================================
+// CUSTOMER
+// =====================================================
+class SportsCustomer {
+
+    private String customerId;
+    private String name;
+    private String email;
+
+    public SportsCustomer(String customerId,
+                          String name,
+                          String email) {
+
+        this.customerId = customerId;
+        this.name = name;
+        this.email = email;
+    }
+
+    public String getCustomerId() {
+        return customerId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+}
+
+
+// =====================================================
+// SPORTS RESERVATION
+// =====================================================
+class SportsReservation {
+
+    private String reservationId;
+    private SportsCustomer customer;
+    private SportsGame game;
+    private SportsSeat seat;
+    private boolean active;
+
+    public SportsReservation(
+            String reservationId,
+            SportsCustomer customer,
+            SportsGame game,
+            SportsSeat seat) {
+
+        this.reservationId = reservationId;
+        this.customer = customer;
+        this.game = game;
+        this.seat = seat;
+        this.active = true;
+    }
+
+    public String getReservationId() {
+        return reservationId;
+    }
+
+    public SportsCustomer getCustomer() {
+        return customer;
+    }
+
+    public SportsGame getGame() {
+        return game;
+    }
+
+    public SportsSeat getSeat() {
+        return seat;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void cancel() {
+
+        if (active) {
+            active = false;
+            seat.cancelReservation();
+        }
+    }
+
+    public void displayTicket() {
+
+        System.out.println();
+        System.out.println("=========================================");
+        System.out.println("             RESERVO SPORTS");
+        System.out.println("=========================================");
+        System.out.println("Reservation: " + reservationId);
+        System.out.println("Status: " +
+                (active ? "CONFIRMED" : "CANCELLED"));
+        System.out.println();
+        System.out.println(
+                game.getAwayTeam().getFullName()
+                + " @ "
+                + game.getHomeTeam().getFullName()
+        );
+        System.out.println();
+        System.out.println("Date: " + game.getDate());
+        System.out.println("Time: " + game.getTime());
+        System.out.println("Venue: " +
+                game.getVenue().getName());
+        System.out.println();
+        System.out.println("Customer: " +
+                customer.getName());
+        System.out.println("Email: " +
+                customer.getEmail());
+        System.out.println();
+        System.out.println("Section: " +
+                seat.getSection());
+        System.out.println("Seat: " +
+                seat.getSeatNumber());
+
+        System.out.printf(
+                "Ticket Price: $%.2f%n",
+                seat.getPrice()
+        );
+
+        System.out.println("=========================================");
+    }
+}
+
+
+// =====================================================
+// SPORTS RESERVATION SYSTEM
+// =====================================================
+class SportsReservationSystem {
+
+    private List<Team> teams;
+    private List<SportsGame> games;
+    private List<SportsReservation> reservations;
+
+    public SportsReservationSystem() {
+
+        teams = new ArrayList<>();
+        games = new ArrayList<>();
+        reservations = new ArrayList<>();
+
+        loadTeams();
+        loadGames();
+    }
+
+    // -------------------------------------------------
+    // LOAD TEAMS
+    // -------------------------------------------------
+    private void loadTeams() {
+
+        // NBA
+        teams.add(new Team(
+                "NBA01", "Pistons",
+                "Detroit", "Basketball", "NBA"));
+
+        teams.add(new Team(
+                "NBA02", "Lakers",
+                "Los Angeles", "Basketball", "NBA"));
+
+        teams.add(new Team(
+                "NBA03", "Celtics",
+                "Boston", "Basketball", "NBA"));
+
+        teams.add(new Team(
+                "NBA04", "Warriors",
+                "Golden State", "Basketball", "NBA"));
+
+        teams.add(new Team(
+                "NBA05", "Bulls",
+                "Chicago", "Basketball", "NBA"));
+
+        teams.add(new Team(
+                "NBA06", "Knicks",
+                "New York", "Basketball", "NBA"));
+
+        teams.add(new Team(
+                "NBA07", "Heat",
+                "Miami", "Basketball", "NBA"));
+
+        teams.add(new Team(
+                "NBA08", "Mavericks",
+                "Dallas", "Basketball", "NBA"));
+
+
+        // NFL
+        teams.add(new Team(
+                "NFL01", "Lions",
+                "Detroit", "Football", "NFL"));
+
+        teams.add(new Team(
+                "NFL02", "Chiefs",
+                "Kansas City", "Football", "NFL"));
+
+        teams.add(new Team(
+                "NFL03", "Cowboys",
+                "Dallas", "Football", "NFL"));
+
+        teams.add(new Team(
+                "NFL04", "Packers",
+                "Green Bay", "Football", "NFL"));
+
+        teams.add(new Team(
+                "NFL05", "49ers",
+                "San Francisco", "Football", "NFL"));
+
+        teams.add(new Team(
+                "NFL06", "Eagles",
+                "Philadelphia", "Football", "NFL"));
+
+        teams.add(new Team(
+                "NFL07", "Bills",
+                "Buffalo", "Football", "NFL"));
+
+        teams.add(new Team(
+                "NFL08", "Steelers",
+                "Pittsburgh", "Football", "NFL"));
+
+
+        // MLB
+        teams.add(new Team(
+                "MLB01", "Tigers",
+                "Detroit", "Baseball", "MLB"));
+
+        teams.add(new Team(
+                "MLB02", "Yankees",
+                "New York", "Baseball", "MLB"));
+
+        teams.add(new Team(
+                "MLB03", "Dodgers",
+                "Los Angeles", "Baseball", "MLB"));
+
+        teams.add(new Team(
+                "MLB04", "Cubs",
+                "Chicago", "Baseball", "MLB"));
+
+        teams.add(new Team(
+                "MLB05", "Red Sox",
+                "Boston", "Baseball", "MLB"));
+
+        teams.add(new Team(
+                "MLB06", "Astros",
+                "Houston", "Baseball", "MLB"));
+
+
+        // NHL
+        teams.add(new Team(
+                "NHL01", "Red Wings",
+                "Detroit", "Hockey", "NHL"));
+
+        teams.add(new Team(
+                "NHL02", "Maple Leafs",
+                "Toronto", "Hockey", "NHL"));
+
+        teams.add(new Team(
+                "NHL03", "Blackhawks",
+                "Chicago", "Hockey", "NHL"));
+
+        teams.add(new Team(
+                "NHL04", "Rangers",
+                "New York", "Hockey", "NHL"));
+
+        teams.add(new Team(
+                "NHL05", "Bruins",
+                "Boston", "Hockey", "NHL"));
+
+        teams.add(new Team(
+                "NHL06", "Avalanche",
+                "Colorado", "Hockey", "NHL"));
+    }
+
+
+    // -------------------------------------------------
+    // FIND TEAM
+    // -------------------------------------------------
+    private Team findTeam(String teamId) {
+
+        for (Team team : teams) {
+
+            if (team.getTeamId().equals(teamId)) {
+                return team;
+            }
+        }
+
+        return null;
+    }
+
+
+    // -------------------------------------------------
+    // LOAD SAMPLE GAMES
+    // -------------------------------------------------
+    private void loadGames() {
+
+        SportsVenue lca =
+                new SportsVenue(
+                        "V001",
+                        "Little Caesars Arena",
+                        "Detroit, Michigan",
+                        20332
+                );
+
+        SportsVenue fordField =
+                new SportsVenue(
+                        "V002",
+                        "Ford Field",
+                        "Detroit, Michigan",
+                        65000
+                );
+
+        SportsVenue comerica =
+                new SportsVenue(
+                        "V003",
+                        "Comerica Park",
+                        "Detroit, Michigan",
+                        41083
+                );
+
+        games.add(new SportsGame(
+                "G001",
+                findTeam("NBA01"),
+                findTeam("NBA02"),
+                lca,
+                "12/10/2026",
+                "7:30 PM"
+        ));
+
+        games.add(new SportsGame(
+                "G002",
+                findTeam("NBA01"),
+                findTeam("NBA03"),
+                lca,
+                "12/15/2026",
+                "7:00 PM"
+        ));
+
+        games.add(new SportsGame(
+                "G003",
+                findTeam("NFL01"),
+                findTeam("NFL02"),
+                fordField,
+                "12/20/2026",
+                "1:00 PM"
+        ));
+
+        games.add(new SportsGame(
+                "G004",
+                findTeam("NFL01"),
+                findTeam("NFL04"),
+                fordField,
+                "12/27/2026",
+                "4:25 PM"
+        ));
+
+        games.add(new SportsGame(
+                "G005",
+                findTeam("MLB01"),
+                findTeam("MLB02"),
+                comerica,
+                "04/15/2027",
+                "1:10 PM"
+        ));
+
+        games.add(new SportsGame(
+                "G006",
+                findTeam("NHL01"),
+                findTeam("NHL02"),
+                lca,
+                "01/10/2027",
+                "7:00 PM"
+        ));
+    }
+
+
+    // -------------------------------------------------
+    // DISPLAY ALL TEAMS
+    // -------------------------------------------------
+    public void displayTeams() {
+
+        System.out.println("\n========== SPORTS TEAMS ==========");
+
+        String currentLeague = "";
+
+        for (Team team : teams) {
+
+            if (!team.getLeague().equals(currentLeague)) {
+
+                currentLeague = team.getLeague();
+
+                System.out.println(
+                        "\n----- " + currentLeague + " -----"
+                );
+            }
+
+            System.out.println(team);
+        }
+    }
+
+
+    // -------------------------------------------------
+    // DISPLAY ALL GAMES
+    // -------------------------------------------------
+    public void displayGames() {
+
+        System.out.println("\n========== AVAILABLE GAMES ==========");
+
+        for (SportsGame game : games) {
+            game.displayGame();
+        }
+    }
+
+
+    // -------------------------------------------------
+    // SEARCH BY SPORT
+    // -------------------------------------------------
+    public void searchBySport(String sport) {
+
+        boolean found = false;
+
+        System.out.println(
+                "\nGames for sport: " + sport
+        );
+
+        for (SportsGame game : games) {
+
+            if (game.getHomeTeam()
+                    .getSport()
+                    .equalsIgnoreCase(sport)) {
+
+                game.displayGame();
+                found = true;
+            }
+        }
+
+        if (!found) {
+            System.out.println(
+                    "No games found for that sport."
+            );
+        }
+    }
+
+
+    // -------------------------------------------------
+    // SEARCH BY TEAM
+    // -------------------------------------------------
+    public void searchByTeam(String teamName) {
+
+        boolean found = false;
+
+        for (SportsGame game : games) {
+
+            if (game.getHomeTeam()
+                    .getFullName()
+                    .toLowerCase()
+                    .contains(teamName.toLowerCase())
+
+                    ||
+
+                    game.getAwayTeam()
+                    .getFullName()
+                    .toLowerCase()
+                    .contains(teamName.toLowerCase())) {
+
+                game.displayGame();
+                found = true;
+            }
+        }
+
+        if (!found) {
+            System.out.println(
+                    "No games found for " + teamName
+            );
+        }
+    }
+
+
+    // -------------------------------------------------
+    // FIND GAME
+    // -------------------------------------------------
+    public SportsGame findGame(String gameId) {
+
+        for (SportsGame game : games) {
+
+            if (game.getGameId()
+                    .equalsIgnoreCase(gameId)) {
+
+                return game;
+            }
+        }
+
+        return null;
+    }
+
+
+    // -------------------------------------------------
+    // DISPLAY SEATS
+    // -------------------------------------------------
+    public void displayAvailableSeats(
+            SportsGame game) {
+
+        System.out.println(
+                "\n========== AVAILABLE SEATS =========="
+        );
+
+        for (SportsSeat seat : game.getSeats()) {
+
+            if (seat.isAvailable()) {
+                seat.displaySeat();
+            }
+        }
+    }
+
+
+    // -------------------------------------------------
+    // FIND SEAT
+    // -------------------------------------------------
+    public SportsSeat findSeat(
+            SportsGame game,
+            String seatNumber) {
+
+        for (SportsSeat seat : game.getSeats()) {
+
+            if (seat.getSeatNumber()
+                    .equalsIgnoreCase(seatNumber)) {
+
+                return seat;
+            }
+        }
+
+        return null;
+    }
+
+
+    // -------------------------------------------------
+    // CREATE RESERVATION
+    // -------------------------------------------------
+    public SportsReservation createReservation(
+            SportsCustomer customer,
+            SportsGame game,
+            SportsSeat seat) {
+
+        if (seat == null || !seat.reserve()) {
+            return null;
+        }
+
+        String reservationId =
+                "SR" + (reservations.size() + 1001);
+
+        SportsReservation reservation =
+                new SportsReservation(
+                        reservationId,
+                        customer,
+                        game,
+                        seat
+                );
+
+        reservations.add(reservation);
+
+        return reservation;
+    }
+
+
+    // -------------------------------------------------
+    // VIEW CUSTOMER RESERVATIONS
+    // -------------------------------------------------
+    public void viewReservations(
+            SportsCustomer customer) {
+
+        boolean found = false;
+
+        System.out.println(
+                "\n========== MY SPORTS TICKETS =========="
+        );
+
+        for (SportsReservation reservation : reservations) {
+
+            if (reservation
+                    .getCustomer()
+                    .getCustomerId()
+                    .equals(customer.getCustomerId())) {
+
+                reservation.displayTicket();
+                found = true;
+            }
+        }
+
+        if (!found) {
+            System.out.println(
+                    "You currently have no sports reservations."
+            );
+        }
+    }
+
+
+    // -------------------------------------------------
+    // CANCEL RESERVATION
+    // -------------------------------------------------
+    public boolean cancelReservation(
+            String reservationId) {
+
+        for (SportsReservation reservation : reservations) {
+
+            if (reservation
+                    .getReservationId()
+                    .equalsIgnoreCase(reservationId)) {
+
+                if (reservation.isActive()) {
+
+                    reservation.cancel();
+
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+}
+
+
+// =====================================================
+// MAIN RESERVO SPORTS APPLICATION
+// =====================================================
+public class ReservoSports {
+
+    public static void main(String[] args) {
+
+        Scanner scanner = new Scanner(System.in);
+
+        SportsReservationSystem system =
+                new SportsReservationSystem();
+
+        System.out.println();
+        System.out.println("=========================================");
+        System.out.println("       WELCOME TO RESERVO SPORTS");
+        System.out.println("=========================================");
+
+        System.out.println("\nCreate your customer profile.");
+
+        System.out.print("Name: ");
+        String name = scanner.nextLine();
+
+        System.out.print("Email: ");
+        String email = scanner.nextLine();
+
+        SportsCustomer customer =
+                new SportsCustomer(
+                        "USER001",
+                        name,
+                        email
+                );
+
+        boolean running = true;
+
+        while (running) {
+
+            System.out.println();
+            System.out.println("=========================================");
+            System.out.println("              MAIN MENU");
+            System.out.println("=========================================");
+            System.out.println("1. View All Sports Teams");
+            System.out.println("2. View Available Games");
+            System.out.println("3. Search Games by Sport");
+            System.out.println("4. Search Games by Team");
+            System.out.println("5. Reserve Tickets");
+            System.out.println("6. View My Reservations");
+            System.out.println("7. Cancel Reservation");
+            System.out.println("8. Exit");
+
+            System.out.print("\nChoose an option: ");
+
+            String option = scanner.nextLine();
+
+            switch (option) {
+
+                // -------------------------------------
+                // VIEW TEAMS
+                // -------------------------------------
+                case "1":
+
+                    system.displayTeams();
+
+                    break;
+
+
+                // -------------------------------------
+                // VIEW GAMES
+                // -------------------------------------
+                case "2":
+
+                    system.displayGames();
+
+                    break;
+
+
+                // -------------------------------------
+                // SEARCH SPORT
+                // -------------------------------------
+                case "3":
+
+                    System.out.print(
+                            "\nEnter sport " +
+                            "(Basketball, Football, Baseball, Hockey): "
+                    );
+
+                    String sport = scanner.nextLine();
+
+                    system.searchBySport(sport);
+
+                    break;
+
+
+                // -------------------------------------
+                // SEARCH TEAM
+                // -------------------------------------
+                case "4":
+
+                    System.out.print(
+                            "\nEnter team name: "
+                    );
+
+                    String teamName = scanner.nextLine();
+
+                    system.searchByTeam(teamName);
+
+                    break;
+
+
+                // -------------------------------------
+                // RESERVE TICKET
+                // -------------------------------------
+                case "5":
+
+                    system.displayGames();
+
+                    System.out.print(
+                            "\nEnter Game ID: "
+                    );
+
+                    String gameId = scanner.nextLine();
+
+                    SportsGame selectedGame =
+                            system.findGame(gameId);
+
+                    if (selectedGame == null) {
+
+                        System.out.println(
+                                "Game not found."
+                        );
+
+                        break;
+                    }
+
+                    selectedGame.displayGame();
+
+                    system.displayAvailableSeats(
+                            selectedGame
+                    );
+
+                    System.out.print(
+                            "\nEnter Seat Number: "
+                    );
+
+                    String seatNumber =
+                            scanner.nextLine();
+
+                    SportsSeat selectedSeat =
+                            system.findSeat(
+                                    selectedGame,
+                                    seatNumber
+                            );
+
+                    if (selectedSeat == null) {
+
+                        System.out.println(
+                                "Seat does not exist."
+                        );
+
+                        break;
+                    }
+
+                    SportsReservation reservation =
+                            system.createReservation(
+                                    customer,
+                                    selectedGame,
+                                    selectedSeat
+                            );
+
+                    if (reservation != null) {
+
+                        System.out.println();
+                        System.out.println(
+                                "RESERVATION SUCCESSFUL!"
+                        );
+
+                        reservation.displayTicket();
+
+                    } else {
+
+                        System.out.println(
+                                "That seat is already reserved."
+                        );
+                    }
+
+                    break;
+
+
+                // -------------------------------------
+                // VIEW RESERVATIONS
+                // -------------------------------------
+                case "6":
+
+                    system.viewReservations(customer);
+
+                    break;
+
+
+                // -------------------------------------
+                // CANCEL RESERVATION
+                // -------------------------------------
+                case "7":
+
+                    System.out.print(
+                            "\nEnter Reservation ID: "
+                    );
+
+                    String reservationId =
+                            scanner.nextLine();
+
+                    boolean cancelled =
+                            system.cancelReservation(
+                                    reservationId
+                            );
+
+                    if (cancelled) {
+
+                        System.out.println(
+                                "Reservation cancelled successfully."
+                        );
+
+                    } else {
+
+                        System.out.println(
+                                "Reservation could not be found " +
+                                "or was already cancelled."
+                        );
+                    }
+
+                    break;
+
+
+                // -------------------------------------
+                // EXIT
+                // -------------------------------------
+                case "8":
+
+                    running = false;
+
+                    System.out.println(
+                            "\nThank you for using Reservo Sports!"
+                    );
+
+                    break;
+
+
+                default:
+
+                    System.out.println(
+                            "Invalid option. Please try again."
+                    );
+            }
+        }
+
+        scanner.close();
+    }
+}

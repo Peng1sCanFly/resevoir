@@ -1,0 +1,265 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+// ---------------- MOVIE ----------------
+class Movie {
+    private String movieId;
+    private String title;
+    private String genre;
+    private int duration;
+
+    public Movie(String movieId, String title, String genre, int duration) {
+        this.movieId = movieId;
+        this.title = title;
+        this.genre = genre;
+        this.duration = duration;
+    }
+
+    public String getMovieId() {
+        return movieId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    @Override
+    public String toString() {
+        return movieId + " - " + title +
+                " | Genre: " + genre +
+                " | Duration: " + duration + " min";
+    }
+}
+
+
+// ---------------- SHOWTIME ----------------
+class Showtime {
+    private String showtimeId;
+    private Movie movie;
+    private String date;
+    private String time;
+    private String theater;
+    private List<String> availableSeats;
+
+    public Showtime(String showtimeId, Movie movie, String date,
+                    String time, String theater) {
+
+        this.showtimeId = showtimeId;
+        this.movie = movie;
+        this.date = date;
+        this.time = time;
+        this.theater = theater;
+        this.availableSeats = new ArrayList<>();
+
+        // Example theater with 20 seats
+        for (int i = 1; i <= 20; i++) {
+            availableSeats.add("A" + i);
+        }
+    }
+
+    public String getShowtimeId() {
+        return showtimeId;
+    }
+
+    public Movie getMovie() {
+        return movie;
+    }
+
+    public List<String> getAvailableSeats() {
+        return availableSeats;
+    }
+
+    public boolean reserveSeat(String seat) {
+        if (availableSeats.contains(seat)) {
+            availableSeats.remove(seat);
+            return true;
+        }
+
+        return false;
+    }
+
+    public void displayShowtime() {
+        System.out.println("\nShowtime ID: " + showtimeId);
+        System.out.println("Movie: " + movie.getTitle());
+        System.out.println("Date: " + date);
+        System.out.println("Time: " + time);
+        System.out.println("Theater: " + theater);
+        System.out.println("Available Seats: " + availableSeats);
+    }
+}
+
+
+// ---------------- CUSTOMER ----------------
+class Customer {
+    private String customerId;
+    private String name;
+    private String email;
+
+    public Customer(String customerId, String name, String email) {
+        this.customerId = customerId;
+        this.name = name;
+        this.email = email;
+    }
+
+    public String getCustomerId() {
+        return customerId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+}
+
+
+// ---------------- RESERVATION ----------------
+class Reservation {
+    private String reservationId;
+    private Customer customer;
+    private Showtime showtime;
+    private String seat;
+
+    public Reservation(String reservationId, Customer customer,
+                       Showtime showtime, String seat) {
+
+        this.reservationId = reservationId;
+        this.customer = customer;
+        this.showtime = showtime;
+        this.seat = seat;
+    }
+
+    public void displayReservation() {
+        System.out.println("\n===== RESERVATION =====");
+        System.out.println("Reservation ID: " + reservationId);
+        System.out.println("Customer: " + customer.getName());
+        System.out.println("Movie: " + showtime.getMovie().getTitle());
+        System.out.println("Seat: " + seat);
+        System.out.println("=======================");
+    }
+}
+
+
+// ---------------- MAIN APPLICATION ----------------
+public class ReservoMovies {
+
+    public static void main(String[] args) {
+
+        Scanner scanner = new Scanner(System.in);
+
+        // Create movies
+        Movie movie1 = new Movie(
+                "M001",
+                "Spider-Man",
+                "Action",
+                140
+        );
+
+        Movie movie2 = new Movie(
+                "M002",
+                "Interstellar",
+                "Science Fiction",
+                169
+        );
+
+        // Create showtimes
+        Showtime showtime1 = new Showtime(
+                "S001",
+                movie1,
+                "12/10/2026",
+                "7:00 PM",
+                "Theater 1"
+        );
+
+        Showtime showtime2 = new Showtime(
+                "S002",
+                movie2,
+                "12/10/2026",
+                "8:30 PM",
+                "Theater 2"
+        );
+
+        // Display movies
+        System.out.println("===== RESERVO MOVIES & ENTERTAINMENT =====");
+
+        System.out.println("\nAvailable Movies:");
+        System.out.println(movie1);
+        System.out.println(movie2);
+
+        // Display showtimes
+        showtime1.displayShowtime();
+        showtime2.displayShowtime();
+
+        // Customer information
+        System.out.println("\nEnter Customer Information");
+
+        System.out.print("Name: ");
+        String name = scanner.nextLine();
+
+        System.out.print("Email: ");
+        String email = scanner.nextLine();
+
+        Customer customer = new Customer(
+                "C001",
+                name,
+                email
+        );
+
+        // Choose showtime
+        System.out.print("\nEnter Showtime ID: ");
+        String selectedShowtime = scanner.nextLine();
+
+        Showtime chosenShowtime;
+
+        if (selectedShowtime.equals("S001")) {
+            chosenShowtime = showtime1;
+        } else if (selectedShowtime.equals("S002")) {
+            chosenShowtime = showtime2;
+        } else {
+            System.out.println("Invalid Showtime ID.");
+            scanner.close();
+            return;
+        }
+
+        // Display available seats
+        System.out.println("\nAvailable Seats:");
+        System.out.println(chosenShowtime.getAvailableSeats());
+
+        System.out.print("Choose a seat: ");
+        String selectedSeat = scanner.nextLine();
+
+        // Reserve seat
+        if (chosenShowtime.reserveSeat(selectedSeat)) {
+
+            Reservation reservation = new Reservation(
+                    "R001",
+                    customer,
+                    chosenShowtime,
+                    selectedSeat
+            );
+
+            System.out.println("\nReservation successful!");
+            reservation.displayReservation();
+
+        } else {
+
+            System.out.println(
+                    "\nReservation failed. " +
+                    "The seat is unavailable or does not exist."
+            );
+        }
+
+        scanner.close();
+    }
+}
