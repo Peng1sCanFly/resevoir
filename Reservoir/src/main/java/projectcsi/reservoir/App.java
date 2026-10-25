@@ -602,14 +602,12 @@ public class App extends Application {
 
         //Load AccountImage.png from the mediaContent folder
         Image accountImage = new Image(
-        new java.io.File(
-                "C:\\Users\\gpeng\\Desktop\\resevoir-main\\Reservoir\\mediaContent\\AccountImage.png" ).toURI().toString(),
+        new java.io.File("mediaContent/AccountImage.png").toURI().toString(),
                 40,
                 40,
                 true,
                 true
         );
-
         //Display the image
         ImageView accountImageView = new ImageView(accountImage);
         accountImageView.setFitWidth(40);
