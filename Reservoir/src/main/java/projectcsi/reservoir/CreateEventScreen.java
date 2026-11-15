@@ -1,6 +1,8 @@
+
 package projectcsi.reservoir;
 
 import java.util.ArrayList;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -9,6 +11,7 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -79,10 +82,53 @@ public class CreateEventScreen {
                 new TextField();
 
         locationField.setPromptText(
-                "Enter event location"
+                "Enter or search for an address"
         );
 
         locationField.setMaxWidth(350);
+
+        // Enable Photon address autocomplete.
+        PhotonAddressAutocomplete autocomplete =
+                new PhotonAddressAutocomplete(locationField);
+
+        // MAP LOCATION BUTTON
+        Button selectLocationButton =
+                new Button("Select Location");
+
+        selectLocationButton.setPrefSize(
+                150,
+                35
+        );
+
+        // Open the existing LocationPicker map.
+        selectLocationButton.setOnAction(action -> {
+
+            LocationPicker locationPicker =
+                    new LocationPicker(
+                            stage,
+                            selectedAddress -> {
+
+                                // Fill the location field with
+                                // the address returned by the map.
+                                locationField.setText(
+                                        selectedAddress
+                                );
+
+                            }
+                    );
+
+            locationPicker.show();
+        });
+
+        // Put the location field and map button together.
+        HBox locationRow =
+                new HBox(
+                        10,
+                        locationField,
+                        selectLocationButton
+                );
+
+        locationRow.setAlignment(Pos.CENTER);
 
         // DATE
         Label dateLabel =
@@ -229,6 +275,31 @@ public class CreateEventScreen {
                                 .getValue()
                                 .toString();
 
+                // Get coordinates if the user selected
+                // an address from Photon autocomplete.
+                PhotonAddressAutocomplete.AddressSuggestion
+                        selectedSuggestion =
+                        autocomplete.getSelectedSuggestion();
+
+                if (selectedSuggestion != null) {
+
+                    double latitude =
+                            selectedSuggestion.latitude();
+
+                    double longitude =
+                            selectedSuggestion.longitude();
+
+                    System.out.println(
+                            "Selected latitude: " + latitude
+                    );
+
+                    System.out.println(
+                            "Selected longitude: " + longitude
+                    );
+                }
+
+                // Create the event using the existing
+                // seven-argument Event constructor.
                 Event newEvent =
                         new Event(
                                 eventName,
@@ -246,6 +317,7 @@ public class CreateEventScreen {
                         "Event created successfully!"
                 );
 
+                // Clear all fields.
                 eventNameField.clear();
                 descriptionArea.clear();
                 locationField.clear();
@@ -262,10 +334,12 @@ public class CreateEventScreen {
             }
         });
 
+        // RETURN TO DASHBOARD
         backButton.setOnAction(
                 action -> backToDashboard.run()
         );
 
+        // PAGE LAYOUT
         VBox layout =
                 new VBox(
                         8,
@@ -276,7 +350,7 @@ public class CreateEventScreen {
                         descriptionLabel,
                         descriptionArea,
                         locationLabel,
-                        locationField,
+                        locationRow,
                         dateLabel,
                         datePicker,
                         timeLabel,
@@ -300,6 +374,7 @@ public class CreateEventScreen {
                         700
                 );
 
+        App.applyStylesheet(scene);
         stage.setScene(scene);
     }
 }

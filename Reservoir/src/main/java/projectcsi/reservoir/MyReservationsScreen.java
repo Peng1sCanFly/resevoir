@@ -1,6 +1,7 @@
 package projectcsi.reservoir;
 
 import java.util.ArrayList;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -325,7 +326,7 @@ public class MyReservationsScreen {
                         900,
                         650
                 );
-
+        App.applyStylesheet(scene);
         stage.setScene(scene);
     }
 }

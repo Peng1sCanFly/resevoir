@@ -385,7 +385,7 @@ public class PaymentScreen {
                         900,
                         700
                 );
-
+        App.applyStylesheet(scene);
         stage.setScene(scene);
     }
 }

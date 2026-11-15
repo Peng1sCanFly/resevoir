@@ -31,17 +31,58 @@ public class App extends Application {
     private ArrayList<Favorite> favorites =
             new ArrayList<>();
 
-    @Override
-    public void start(Stage stage) {
+@Override
+public void start(Stage stage) {
 
-        this.stage = stage;
+    this.stage = stage;
 
-        stage.setTitle("Reservoir");
+    stage.setTitle("Reservoir");
 
-        showWelcomeScreen();
+    // Automatically apply CSS to every new scene.
+    stage.sceneProperty().addListener(
+            (observable, oldScene, newScene) -> {
 
-        stage.show();
-    }
+                if (newScene != null) {
+
+                    applyStylesheet(newScene);
+                }
+            }
+    );
+
+    showWelcomeScreen();
+
+    stage.show();
+}
+    // =====================================================
+    // Stylesheet
+    // =====================================================
+
+public static void applyStylesheet(Scene scene) {
+
+        java.io.File cssFile = new java.io.File(
+                "src/main/java/projectcsi/reservoir/reservoir.css"
+        );
+
+        if (!cssFile.exists()) {
+                System.err.println(
+                        "Could not find reservoir.css at: "
+                        + cssFile.getAbsolutePath()
+                );
+                return;
+        }
+
+        String stylesheet = cssFile.toURI().toString();
+
+        // Avoid adding the same stylesheet more than once.
+        if (!scene.getStylesheets().contains(stylesheet)) {
+                scene.getStylesheets().add(stylesheet);
+        }
+
+        System.out.println(
+                "Stylesheet applied to scene: "
+                + scene.getRoot().getClass().getSimpleName()
+        );
+        }
 
     // =====================================================
     // HOME
@@ -442,96 +483,89 @@ public class App extends Application {
 
         Button logoutButton =
                 new Button("Logout");
-        
-        //Calendar
-        java.time.YearMonth currentMonth = java.time.YearMonth.now();
-        java.time.LocalDate today = java.time.LocalDate.now();
-        GridPane calendar = new GridPane();
-        calendar.setHgap(10);
-        calendar.setVgap(10);
-        calendar.setAlignment(Pos.CENTER);
-        //Month heading
-        Label monthLabel = new Label(
-                currentMonth.getMonth().toString()+ " " + currentMonth.getYear());
+                
+        eventsButton.getStyleClass().add("dashboard-button");
+        createEventButton.getStyleClass().add("dashboard-button");
+        reservationsButton.getStyleClass().add("dashboard-button");
+        myEventsButton.getStyleClass().add("dashboard-button");
+        favoritesButton.getStyleClass().add("dashboard-button");
+        logoutButton.getStyleClass().add("dashboard-button");
+        //====================
+        // Calendar
+        //====================
+        // Calendar
+java.time.YearMonth currentMonth = java.time.YearMonth.now();
+java.time.LocalDate today = java.time.LocalDate.now();
 
-        monthLabel.setStyle("-fx-font-size: 20px;"+ "-fx-font-weight: bold;");
-        
-        //Weekday headings
-        String[] weekdays = {"Sun", "Mon", "Tue", "Wed","Thu", "Fri", "Sat"};
+GridPane calendar = new GridPane();
+calendar.setHgap(10);
+calendar.setVgap(10);
+calendar.setAlignment(Pos.CENTER);
 
-        for (int col = 0; col < 7; col++) {
-                Label weekday = new Label(weekdays[col]);
-                calendar.add(weekday, col, 0);
-        }
+// Month heading
+Label monthLabel = new Label(
+        currentMonth.getMonth().toString() + " " + currentMonth.getYear()
+);
 
-        //Find the first weekday of the month
-        int startDay = currentMonth.atDay(1).getDayOfWeek().getValue() % 7;
+monthLabel.setStyle(
+        "-fx-font-size: 20px;" +
+        "-fx-font-weight: bold;" +
+        "-fx-text-fill: #12284B;"
+);
 
-        //Add the numbered days
-        for (int day = 1;
-                day <= currentMonth.lengthOfMonth();
-                day++) {
+// Weekday headings
+String[] weekdays = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 
-        java.time.LocalDate date = currentMonth.atDay(day);
+for (int col = 0; col < 7; col++) {
+    Label weekday = new Label(weekdays[col]);
+    weekday.setAlignment(Pos.CENTER);
+    weekday.setStyle(
+            "-fx-text-fill: #12284B;" +
+            "-fx-font-weight: bold;"
+    );
+    calendar.add(weekday, col, 0);
+}
 
-        Label dateLabel = new Label(String.valueOf(day));
+// Find the first weekday of the month
+int startDay = currentMonth.atDay(1).getDayOfWeek().getValue() % 7;
 
-        dateLabel.setMinSize(30, 30);
-        dateLabel.setAlignment(Pos.CENTER);
+// Add the numbered days
+for (int day = 1; day <= currentMonth.lengthOfMonth(); day++) {
 
-        //Highlight today's date
-        if (date.equals(today)) {
-                dateLabel.setStyle(
-                        "-fx-background-color: yellow;" + "-fx-font-weight: bold;" + "-fx-background-radius: 15;");
-        }
+    java.time.LocalDate date = currentMonth.atDay(day);
 
-        int index = startDay + day - 1;
+    Label dateLabel = new Label(String.valueOf(day));
 
-        calendar.add(
-                dateLabel,
-                index % 7,
-                (index / 7) + 1
-        );
-        }
+    dateLabel.setMinSize(30, 30);
+    dateLabel.setAlignment(Pos.CENTER);
 
-        // Put the heading above the calendar
-        VBox calendarBox = new VBox(
-                10,
-                monthLabel,
-                calendar
-        );
+    // Individual square borders and yellow highlight for today
+    dateLabel.setStyle(
+            "-fx-border-color: #12284B;" +
+            "-fx-border-width: 1px;" +
+            "-fx-text-fill: #12284B;" +
+            (date.equals(today)
+                    ? "-fx-background-color: yellow; -fx-font-weight: bold;"
+                    : "")
+    );
 
-        calendarBox.setAlignment(Pos.CENTER);
-        
-        eventsButton.setPrefSize(
-                300,
-                40
-        );
+    int index = startDay + day - 1;
 
-        createEventButton.setPrefSize(
-                300,
-                40
-        );
+    calendar.add(
+            dateLabel,
+            index % 7,
+            (index / 7) + 1
+    );
+}
 
-        reservationsButton.setPrefSize(
-                300,
-                40
-        );
+// Calendar layout
+VBox calendarBox = new VBox(
+        10,
+        monthLabel,
+        calendar
+);
 
-        myEventsButton.setPrefSize(
-                300,
-                40
-        );
-
-        favoritesButton.setPrefSize(
-                300,
-                40
-        );
-
-        logoutButton.setPrefSize(
-                300,
-                40
-        );
+calendarBox.setAlignment(Pos.CENTER);
 
         // EVENTS
         eventsButton.setOnAction(
@@ -735,6 +769,7 @@ public class App extends Application {
 
                 layout.setPadding(new Insets(40));
 
+
                 stage.setScene(
                         new Scene(
                                 layout,
@@ -742,6 +777,7 @@ public class App extends Application {
                                 650
                         )
                 );
+                
         }    
 
     // =====================================================
@@ -883,6 +919,7 @@ public class App extends Application {
         layout.setPadding(
                 new Insets(40)
         );
+
 
         stage.setScene(
                 new Scene(

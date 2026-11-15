@@ -1,6 +1,7 @@
 package projectcsi.reservoir;
 
 import java.util.ArrayList;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -9,8 +10,10 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
 
 public class CategoryEventsScreen {
 
@@ -95,15 +98,26 @@ public class CategoryEventsScreen {
         // =====================================================
         // LOCATION
         // =====================================================
-
         Label locationLabel =
                 new Label("Location");
 
         TextField locationField =
                 new TextField();
 
-        locationField.setMaxWidth(350);
+        locationField.setPrefWidth(290);
+        locationField.setPromptText("Enter an address");
 
+        // Activate Photon autocomplete.
+        PhotonAddressAutocomplete autocomplete =
+                new PhotonAddressAutocomplete(locationField);
+
+        // Button that opens the map.
+        Button selectLocationButton =
+                new Button("Select");
+
+        selectLocationButton.setPrefSize(60, 35);
+        
+        
         // =====================================================
         // CATEGORY OPTIONS
         // =====================================================
@@ -250,7 +264,7 @@ public class CategoryEventsScreen {
             );
 
             locationField.setPromptText(
-                    "Type event location"
+                    "Type or select event location"
             );
         }
 
@@ -481,7 +495,26 @@ public class CategoryEventsScreen {
 
         Label messageLabel =
                 new Label();
+        // =====================================================
+        // SELECT LOCATION FROM MAP
+        // =====================================================
 
+        selectLocationButton.setOnAction(action -> {
+        LocationPicker picker =
+                new LocationPicker(
+                        stage,
+                        address -> {
+                                // Fill the location field
+                                locationField.setText(address);
+                                // Save the selected address
+                                savedLocation = address;
+                                messageLabel.setText(
+                                        "Location selected successfully!"
+                                );
+                        }
+                );
+        picker.show();
+        });
         // =====================================================
         // BUTTONS
         // =====================================================
@@ -1062,6 +1095,15 @@ costField.textProperty().addListener((observable, oldValue, newValue) -> {
         // =====================================================
         // LAYOUT
         // =====================================================
+        HBox locationBox =
+                new HBox(
+                        8,
+                        locationField,
+                        selectLocationButton
+                );
+        locationBox.setAlignment(
+                Pos.CENTER
+        );
 
         VBox layout =
                 new VBox(
@@ -1076,8 +1118,7 @@ costField.textProperty().addListener((observable, oldValue, newValue) -> {
                         nameField,
 
                         locationLabel,
-                        locationField,
-
+                        locationBox,
                         dateLabel,
                         datePicker,
 
@@ -1204,11 +1245,11 @@ costField.textProperty().addListener((observable, oldValue, newValue) -> {
                         + reservation.getEventName()
                 );
 
-        Label locationLabel =
-                new Label(
-                        "Location: "
-                        + reservation.getLocation()
-                );
+Label locationLabel =
+        new Label(
+                "Location: "
+                + reservation.getLocation()
+        );
 
         Label dateLabel =
                 new Label(

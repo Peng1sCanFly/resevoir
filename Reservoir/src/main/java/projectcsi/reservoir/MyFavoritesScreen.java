@@ -1,6 +1,7 @@
 package projectcsi.reservoir;
 
 import java.util.ArrayList;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -26,8 +27,8 @@ public class MyFavoritesScreen {
         this.stage = stage;
         this.favorites = favorites;
         this.backToDashboard = backToDashboard;
+        
     }
-
     public void show() {
 
         // =====================================================
@@ -276,7 +277,8 @@ public class MyFavoritesScreen {
                         900,
                         650
                 );
-
+        
+        App.applyStylesheet(scene);
         stage.setScene(scene);
     }
 }

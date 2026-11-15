@@ -8,7 +8,11 @@ projectcsi\reservoir\PaymentScreen.class
 projectcsi\reservoir\MyReservationsScreen.class
 projectcsi\reservoir\MyEventsScreen.class
 module-info.class
+projectcsi\reservoir\LocationPicker.class
+projectcsi\reservoir\PhotonAddressAutocomplete$1.class
+projectcsi\reservoir\PhotonAddressAutocomplete$AddressSuggestion.class
 projectcsi\reservoir\MyFavoritesScreen.class
+projectcsi\reservoir\PhotonAddressAutocomplete.class
 projectcsi\reservoir\Favorite.class
 projectcsi\reservoir\App.class
 projectcsi\reservoir\CreateEventScreen.class

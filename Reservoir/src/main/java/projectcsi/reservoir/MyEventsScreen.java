@@ -2,6 +2,7 @@ package projectcsi.reservoir;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -439,7 +440,7 @@ public class MyEventsScreen {
                         900,
                         650
                 );
-
+        App.applyStylesheet(scene);
         stage.setScene(scene);
     }
 }

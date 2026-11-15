@@ -1,0 +1,190 @@
+
+/* MAIN PAGE BACKGROUND */
+.root {
+    -fx-background-color: linear-gradient(
+        to bottom,
+        #3D77BB,
+        #74B5E6
+    );
+    -fx-color: #12284B;
+}
+
+/* LABELS */
+.label {
+    -fx-text-fill: black;
+}
+
+/* BUTTONS */
+.button {
+    -fx-background-color: #C2DEF5;
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8px;
+    -fx-border-color: #12284B;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-cursor: hand;
+}
+
+/* BUTTON HOVER */
+.button:hover {
+    -fx-background-color: #A9D0F0;
+}
+
+/* BUTTON PRESSED */
+.button:pressed {
+    -fx-background-color: #8BBBE3;
+}
+
+/* TEXT FIELDS */
+.text-field {
+    -fx-background-color: #8BBBE3;
+    -fx-text-fill: black;
+    -fx-background-radius: 6px;
+    -fx-border-color: #12284B;
+    -fx-border-radius: 6px;
+}
+
+/* TEXT AREAS */
+.text-area {
+    -fx-background-color: #8BBBE3;
+    -fx-text-fill: black;
+    -fx-prompt-text-fill: #12284B;
+    -fx-border-color: #12284B;
+    -fx-border-radius: 6px;
+}
+
+/* DATE PICKER */
+.date-picker {
+    -fx-background-color: #8BBBE3;
+    -fx-border-color: #12284B;
+    -fx-border-radius: 6px;
+}
+
+/* TAB PANE HEADER / TAB BAR */
+.tab-pane .tab-header-area {
+    -fx-background-color: #12284B;
+}
+
+.tab-pane .tab-header-background {
+    -fx-background-color: #12284B;
+}
+
+/* INDIVIDUAL TABS */
+.tab-pane .tab {
+    -fx-background-color: #12284B;
+    -fx-background-radius: 5px 5px 0 0;
+}
+
+.tab-pane .tab .tab-label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* SELECTED TAB */
+.tab-pane .tab:selected {
+    -fx-background-color: #C2DEF5;
+}
+
+.tab-pane .tab:selected .tab-label {
+    -fx-text-fill: #12284B;
+}
+/* DASHBOARD BUTTON SIZING ONLY */
+.dashboard-button {
+    -fx-min-width: 300px;
+    -fx-pref-width: 300px;
+    -fx-max-width: 300px;
+
+    -fx-min-height: 40px;
+    -fx-pref-height: 40px;
+    -fx-max-height: 40px;
+}
+/* UNIVERSAL HINT / PROMPT TEXT */
+.text-input {
+    -fx-prompt-text-fill: #12284B;
+}
+
+.combo-box-base .text {
+    -fx-prompt-text-fill: #12284B;
+}
+
+/* COMBO BOX */
+.combo-box {
+    -fx-background-color: #8BBBE3;
+    -fx-border-color: #12284B;
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+}
+
+/* COMBO BOX TEXT */
+.combo-box .list-cell {
+    -fx-text-fill: #12284B;
+    -fx-background-color: #8BBBE3;
+}
+
+/* COMBO BOX ARROW */
+.combo-box .arrow {
+    -fx-background-color: #12284B;
+}
+
+/* COMBO BOX DROPDOWN */
+.combo-box-popup .list-view {
+    -fx-background-color: #8BBBE3;
+    -fx-border-color: #12284B;
+}
+
+/* DROPDOWN OPTIONS */
+.combo-box-popup .list-cell {
+    -fx-background-color: #8BBBE3;
+    -fx-text-fill: #12284B;
+}
+
+/* DROPDOWN HOVER */
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: #C2DEF5;
+    -fx-text-fill: #12284B;
+}
+
+/* DROPDOWN SELECTED OPTION */
+.combo-box-popup .list-cell:selected {
+    -fx-background-color: #C2DEF5;
+    -fx-text-fill: #12284B;
+}
+/* UNIVERSAL SCROLL PANE */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+
+/* UNIVERSAL SCROLL PANE */
+.scroll-pane {
+    -fx-background-color: linear-gradient(
+        to bottom,
+        #3D77BB,
+        #74B5E6
+    );
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+
+/* SCROLL PANE VIEWPORT */
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* SCROLL BARS */
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #12284B;
+    -fx-background-radius: 5px;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+}
