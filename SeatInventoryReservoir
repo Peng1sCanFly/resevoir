@@ -1,0 +1,266 @@
+package projectcsi.reservoir;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.DateTimeParseException;
+import java.util.*;
+
+public final class SeatInventory {
+
+    private SeatInventory() { }
+
+    public static final class Seat {
+
+        public final String id;
+        public final String section;
+        public final int capacity;
+
+        Seat(String id, String section, int capacity) {
+            this.id = id;
+            this.section = section;
+            this.capacity = capacity;
+        }
+    }
+
+    public static boolean supports(String category) {
+        return Arrays.asList(
+                "Movies",
+                "Sports",
+                "Concerts",
+                "Restaurants"
+        ).contains(category);
+    }
+
+    public static List<Seat> layout(String category, String type) {
+
+        List<Seat> result = new ArrayList<>();
+
+        // RESTAURANT SEATING
+        if ("Restaurants".equals(category)) {
+
+            for (int i = 1; i <= 4; i++) {
+                result.add(new Seat("B" + i, "Booths", 4));
+            }
+
+            for (int i = 1; i <= 6; i++) {
+                result.add(new Seat(
+                        "T" + i,
+                        "Dining tables",
+                        i <= 2 ? 2 : i <= 4 ? 4 : 6
+                ));
+            }
+
+            for (int i = 1; i <= 8; i++) {
+                result.add(new Seat("BAR" + i, "Bar stools", 1));
+            }
+
+        // MOVIE THEATER SEATING
+        } else if ("Movies".equals(category)) {
+
+            for (char row = 'A'; row <= 'H'; row++) {
+                for (int n = 1; n <= 10; n++) {
+                    result.add(new Seat(
+                            row + "" + n,
+                            "Auditorium",
+                            1
+                    ));
+                }
+            }
+
+        // SPORTS AND CONCERT SEATING
+        } else if ("Sports".equals(category)
+                || "Concerts".equals(category)) {
+
+            String[] sections = "Concerts".equals(category)
+                    ? new String[]{
+                        "Floor",
+                        "Lower 101",
+                        "Lower 102",
+                        "Upper 201",
+                        "Upper 202"
+                    }
+                    : new String[]{
+                        "Premium",
+                        "Lower 101",
+                        "Lower 102",
+                        "Lower 103",
+                        "Lower 104",
+                        "Upper 201",
+                        "Upper 202",
+                        "Upper 203",
+                        "Upper 204"
+                    };
+
+            for (String section : sections) {
+                for (char row = 'A'; row <= 'D'; row++) {
+                    for (int n = 1; n <= 8; n++) {
+
+                        result.add(new Seat(
+                                section + "-" + row + n,
+                                section,
+                                1
+                        ));
+                    }
+                }
+            }
+        }
+
+        return Collections.unmodifiableList(result);
+    }
+
+    // STANDARDIZE RESERVATION TIME
+    public static String normalizeTime(String input) {
+
+        String value = input.trim()
+                .replaceAll("\\s+", " ")
+                .toUpperCase(Locale.ROOT);
+
+        value = value.replaceAll(
+                "(\\d)(AM|PM)$",
+                "$1 $2"
+        );
+
+        for (String pattern : new String[]{
+            "h:mm a", "h a", "H:mm"
+        }) {
+            try {
+
+                DateTimeFormatter formatter =
+                        new DateTimeFormatterBuilder()
+                                .parseCaseInsensitive()
+                                .appendPattern(pattern)
+                                .toFormatter(Locale.US)
+                                .withResolverStyle(
+                                        java.time.format.ResolverStyle.STRICT
+                                );
+
+                return LocalTime.parse(value, formatter)
+                        .format(DateTimeFormatter.ofPattern("HH:mm"));
+
+            } catch (DateTimeParseException ignored) {
+            }
+        }
+
+        throw new IllegalArgumentException(
+                "Enter a valid time, for example 7:00 PM or 19:00."
+        );
+    }
+
+    private static boolean same(String a, String b) {
+
+        return a.trim()
+                .replaceAll("\\s+", " ")
+                .equalsIgnoreCase(
+                        b.trim().replaceAll("\\s+", " ")
+                );
+    }
+
+    // CHECK RESERVED SEATS
+    public static Set<String> occupied(
+            List<Reservation> reservations,
+            String category,
+            String event,
+            String location,
+            String date,
+            String time) {
+
+        Set<String> result = new HashSet<>();
+
+        LocalDateTime start = LocalDateTime.of(
+                LocalDate.parse(date),
+                LocalTime.parse(normalizeTime(time))
+        );
+
+        for (Reservation r : reservations) {
+
+            if (!category.equals(r.getCategory())
+                    || !same(event, r.getEventName())
+                    || !same(location, r.getLocation())) {
+                continue;
+            }
+
+            LocalDateTime other = LocalDateTime.of(
+                    LocalDate.parse(r.getDate()),
+                    LocalTime.parse(normalizeTime(r.getTime()))
+            );
+
+            boolean conflict = "Restaurants".equals(category)
+                    ? start.isBefore(other.plusHours(2))
+                    && other.isBefore(start.plusHours(2))
+                    : start.equals(other);
+
+            if (conflict) {
+                result.addAll(r.getSeatIds());
+            }
+        }
+
+        return result;
+    }
+
+    // VALIDATE NUMBER OF SELECTED SEATS
+    public static boolean fits(
+            String category,
+            List<Seat> inventory,
+            Collection<String> ids,
+            int quantity) {
+
+        if (quantity <= 0
+                || ids.isEmpty()
+                || new HashSet<>(ids).size() != ids.size()) {
+            return false;
+        }
+
+        Map<String, Seat> byId = new HashMap<>();
+
+        for (Seat seat : inventory) {
+            byId.put(seat.id, seat);
+        }
+
+        for (String id : ids) {
+            if (!byId.containsKey(id)) {
+                return false;
+            }
+        }
+
+        if (!"Restaurants".equals(category)) {
+            return ids.size() == quantity;
+        }
+
+        Seat first = byId.get(ids.iterator().next());
+
+        if (!"Bar stools".equals(first.section)) {
+            return ids.size() == 1
+                    && first.capacity >= quantity;
+        }
+
+        return ids.size() == quantity
+                && ids.stream().allMatch(
+                        id -> "Bar stools".equals(byId.get(id).section)
+                );
+    }
+
+    // DISPLAY SELECTED SEATING
+    public static String describe(
+            String category,
+            List<Seat> inventory,
+            Collection<String> ids) {
+
+        if (!"Restaurants".equals(category)) {
+            return String.join(", ", ids);
+        }
+
+        for (Seat seat : inventory) {
+
+            if (ids.contains(seat.id) && seat.capacity > 1) {
+                return seat.section
+                        + " / " + seat.id
+                        + " (" + seat.capacity + " seats)";
+            }
+        }
+
+        return "Bar / " + String.join(", ", ids);
+    }
+}
