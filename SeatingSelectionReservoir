@@ -1,0 +1,539 @@
+package projectcsi.reservoir;
+
+import java.util.*;
+import java.util.function.Consumer;
+
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.stage.Stage;
+
+public class SeatingSelectionScreen {
+
+    private final Stage stage;
+    private final String category;
+    private final String type;
+    private final String eventName;
+    private final int quantity;
+
+    private final List<SeatInventory.Seat> inventory;
+    private final Set<String> occupied;
+
+    private final LinkedHashSet<String> selected =
+            new LinkedHashSet<>();
+
+    private final Map<String, Button> buttons =
+            new LinkedHashMap<>();
+
+    private final Consumer<List<String>> onSelected;
+    private final Runnable backAction;
+
+    private final Label summary = new Label();
+    private final Label message = new Label();
+
+    private final Button confirm =
+            new Button("Use Selected Seating");
+
+    public SeatingSelectionScreen(
+            Stage stage,
+            String category,
+            String type,
+            String eventName,
+            int quantity,
+            Set<String> occupied,
+            Collection<String> previous,
+            Consumer<List<String>> onSelected,
+            Runnable backAction) {
+
+        this.stage = stage;
+        this.category = category;
+        this.type = type;
+        this.eventName = eventName;
+        this.quantity = quantity;
+
+        this.occupied = new HashSet<>(occupied);
+
+        this.inventory =
+                SeatInventory.layout(category, type);
+
+        for (SeatInventory.Seat seat : inventory) {
+
+            if (previous.contains(seat.id)
+                    && !occupied.contains(seat.id)) {
+
+                selected.add(seat.id);
+            }
+        }
+
+        this.onSelected = onSelected;
+        this.backAction = backAction;
+    }
+
+    public void show() {
+
+        Label title = new Label("CHOOSE YOUR SEATING");
+
+        title.setStyle(
+                "-fx-font-size: 28px;"
+                + "-fx-font-weight: bold;"
+        );
+
+        Label context = new Label(
+                eventName + " | " + type
+                + " | Party / tickets: " + quantity
+        );
+
+        Label demo = new Label(
+                "Sample floor plan — session availability only."
+        );
+
+        Label legend = new Label(
+                "Green: Available     "
+                + "Blue: Selected     "
+                + "Red: Reserved     "
+                + "Gray: Too small"
+        );
+
+        VBox map = new VBox(12);
+
+        map.setAlignment(Pos.CENTER);
+        map.setPadding(new Insets(16));
+
+        map.setStyle(
+                "-fx-background-color: #eef5fb;"
+                + "-fx-background-radius: 12;"
+                + "-fx-border-color: #12284B;"
+                + "-fx-border-radius: 12;"
+        );
+
+        // RESTAURANT FLOOR PLAN
+        if ("Restaurants".equals(category)) {
+
+            buildRestaurant(map);
+
+        // MOVIE THEATER
+        } else if ("Movies".equals(category)) {
+
+            map.getChildren().addAll(
+                    area("MOVIE SCREEN", 520, 40),
+                    grid(inventory, 10)
+            );
+
+        // SPORTS AND CONCERTS
+        } else {
+
+            buildArena(map);
+        }
+
+        summary.setWrapText(true);
+        summary.setMaxWidth(800);
+        message.setWrapText(true);
+
+        confirm.setOnAction(e -> {
+
+            if (SeatInventory.fits(
+                    category, inventory, selected, quantity)) {
+
+                onSelected.accept(
+                        new ArrayList<>(selected)
+                );
+            }
+        });
+
+        Button back =
+                new Button("Back to Reservation");
+
+        back.setOnAction(e -> backAction.run());
+
+        Button clear =
+                new Button("Clear Selection");
+
+        clear.setOnAction(e -> {
+            selected.clear();
+            message.setText("");
+            refresh();
+        });
+
+        HBox controls =
+                new HBox(12, back, clear, confirm);
+
+        controls.setAlignment(Pos.CENTER);
+
+        VBox root = new VBox(
+                12,
+                title,
+                context,
+                demo,
+                legend,
+                map,
+                summary,
+                message,
+                controls
+        );
+
+        root.setPadding(new Insets(22));
+        root.setAlignment(Pos.TOP_CENTER);
+
+        ScrollPane scroll = new ScrollPane(root);
+        scroll.setFitToWidth(true);
+
+        refresh();
+
+        stage.setScene(
+                new Scene(scroll, 1000, 800)
+        );
+    }
+
+    private Label area(
+            String text, double width, double height) {
+
+        Label label = new Label(text);
+
+        label.setAlignment(Pos.CENTER);
+        label.setPrefSize(width, height);
+
+        label.setStyle(
+                "-fx-background-color: #344e66;"
+                + "-fx-text-fill: white;"
+                + "-fx-font-weight: bold;"
+                + "-fx-background-radius: 6;"
+        );
+
+        return label;
+    }
+
+    private List<SeatInventory.Seat> section(String section) {
+
+        List<SeatInventory.Seat> seats =
+                new ArrayList<>();
+
+        for (SeatInventory.Seat seat : inventory) {
+
+            if (seat.section.equals(section)) {
+                seats.add(seat);
+            }
+        }
+
+        return seats;
+    }
+
+    // GENERATE INDIVIDUAL SEAT BUTTONS
+    private GridPane grid(
+            List<SeatInventory.Seat> seats,
+            int columns) {
+
+        GridPane grid = new GridPane();
+
+        grid.setHgap(6);
+        grid.setVgap(6);
+        grid.setAlignment(Pos.CENTER);
+
+        for (int i = 0; i < seats.size(); i++) {
+
+            SeatInventory.Seat seat = seats.get(i);
+
+            String label = seat.id.contains("-")
+                    ? seat.id.substring(
+                            seat.id.lastIndexOf('-') + 1)
+                    : seat.id;
+
+            if (seat.capacity > 1) {
+                label += "\n" + seat.capacity + " people";
+            }
+
+            Button button = new Button(label);
+
+            button.setMinSize(
+                    seat.capacity > 1 ? 94 : 51,
+                    seat.capacity > 1 ? 58 : 36
+            );
+
+            button.setTooltip(new Tooltip(
+                    seat.id
+                    + " | " + seat.section
+                    + " | Capacity: " + seat.capacity
+            ));
+
+            button.setOnAction(e -> toggle(seat));
+
+            buttons.put(seat.id, button);
+
+            grid.add(
+                    button,
+                    i % columns,
+                    i / columns
+            );
+        }
+
+        return grid;
+    }
+
+    private VBox group(String title, GridPane seats) {
+
+        Label label = new Label(title);
+
+        label.setStyle("-fx-font-weight: bold;");
+
+        VBox box = new VBox(8, label, seats);
+
+        box.setAlignment(Pos.CENTER);
+
+        return box;
+    }
+
+    // RESTAURANT LAYOUT
+    private void buildRestaurant(VBox map) {
+
+        HBox facilities = new HBox(
+                18,
+                area("KITCHEN — STAFF ONLY", 300, 58),
+                area("BAR COUNTER", 250, 58)
+        );
+
+        facilities.setAlignment(Pos.CENTER);
+
+        HBox dining = new HBox(
+                40,
+                group("WALL BOOTHS",
+                        grid(section("Booths"), 2)),
+
+                group("DINING TABLES / CHAIRS",
+                        grid(section("Dining tables"), 3))
+        );
+
+        dining.setAlignment(Pos.CENTER);
+
+        map.getChildren().addAll(
+                facilities,
+
+                group("BAR STOOLS",
+                        grid(section("Bar stools"), 8)),
+
+                dining,
+
+                area("ENTRANCE / HOST STAND", 250, 42)
+        );
+    }
+
+    // SPORTS ARENA AND CONCERT LAYOUT
+    private void buildArena(VBox map) {
+
+        String center = "Concerts".equals(category)
+                ? "STAGE"
+                : "Basketball".equals(type)
+                ? "BASKETBALL COURT"
+                : "Hockey".equals(type)
+                ? "ICE RINK"
+                : "Baseball".equals(type)
+                ? "BASEBALL DIAMOND"
+                : "FIFA / Soccer".equals(type)
+                ? "SOCCER PITCH"
+                : "FOOTBALL FIELD";
+
+        Set<String> names = new LinkedHashSet<>();
+
+        for (SeatInventory.Seat seat : inventory) {
+            names.add(seat.section);
+        }
+
+        Label sectionTitle = new Label();
+
+        VBox seatArea = new VBox(8);
+        seatArea.setAlignment(Pos.CENTER);
+
+        GridPane sectionMap = new GridPane();
+
+        sectionMap.setAlignment(Pos.CENTER);
+        sectionMap.setHgap(8);
+        sectionMap.setVgap(8);
+
+        HBox premium = new HBox(8);
+        premium.setAlignment(Pos.CENTER);
+
+        Button[] active = {null};
+
+        Consumer<String> open = name -> {
+
+            buttons.clear();
+
+            sectionTitle.setText(
+                    name + " — select individual seats"
+            );
+
+            seatArea.getChildren().setAll(
+                    sectionTitle,
+                    grid(section(name), 8)
+            );
+
+            refresh();
+        };
+
+        int index = 0;
+
+        for (String name : names) {
+
+            Button button = new Button(name);
+
+            button.setPrefSize(125, 40);
+
+            button.setOnAction(e -> {
+
+                if (active[0] != null) {
+                    active[0].setStyle("");
+                }
+
+                active[0] = button;
+
+                button.setStyle(
+                        "-fx-background-color: #72b5ed;"
+                );
+
+                open.accept(name);
+            });
+
+            if (index == 0) {
+
+                premium.getChildren().add(button);
+                active[0] = button;
+
+                button.setStyle(
+                        "-fx-background-color: #72b5ed;"
+                );
+
+            } else {
+
+                int n = index - 1;
+
+                sectionMap.add(
+                        button, n % 4, n / 4
+                );
+            }
+
+            index++;
+        }
+
+        map.getChildren().addAll(
+                sectionMap,
+                area(center, 420, 60),
+                premium,
+                seatArea
+        );
+
+        open.accept(names.iterator().next());
+    }
+
+    // SELECT OR DESELECT SEATS
+    private void toggle(SeatInventory.Seat seat) {
+
+        if (occupied.contains(seat.id)) {
+            return;
+        }
+
+        message.setText("");
+
+        if (selected.remove(seat.id)) {
+            refresh();
+            return;
+        }
+
+        if ("Restaurants".equals(category)) {
+
+            if (seat.capacity > 1) {
+
+                selected.clear();
+
+            } else {
+
+                selected.removeIf(
+                        id -> !id.startsWith("BAR")
+                );
+
+                if (selected.size() >= quantity) {
+
+                    message.setText(
+                            "You already selected enough bar stools."
+                    );
+
+                    return;
+                }
+            }
+
+        } else if (selected.size() >= quantity) {
+
+            message.setText(
+                    "You already selected "
+                    + quantity
+                    + " seats. Deselect one first."
+            );
+
+            return;
+        }
+
+        selected.add(seat.id);
+
+        refresh();
+    }
+
+    // UPDATE SEATING COLORS AND AVAILABILITY
+    private void refresh() {
+
+        for (SeatInventory.Seat seat : inventory) {
+
+            Button button = buttons.get(seat.id);
+
+            if (button == null) {
+                continue;
+            }
+
+            boolean booked =
+                    occupied.contains(seat.id);
+
+            boolean small =
+                    "Restaurants".equals(category)
+                    && seat.capacity > 1
+                    && seat.capacity < quantity;
+
+            boolean chosen =
+                    selected.contains(seat.id);
+
+            String color = booked
+                    ? "#f3a5a5"
+                    : small
+                    ? "#cbd2da"
+                    : chosen
+                    ? "#70b5ef"
+                    : "#bce7c3";
+
+            button.setDisable(booked || small);
+
+            button.setStyle(
+                    "-fx-background-color: " + color + ";"
+                    + "-fx-opacity: 1;"
+                    + "-fx-font-weight: bold;"
+            );
+        }
+
+        summary.setText(
+                selected.isEmpty()
+                ? "No seating selected"
+                : "Selected: "
+                + SeatInventory.describe(
+                        category, inventory, selected)
+                + ("Restaurants".equals(category)
+                        ? ""
+                        : " (" + selected.size()
+                        + "/" + quantity + ")")
+        );
+
+        confirm.setDisable(
+                !SeatInventory.fits(
+                        category,
+                        inventory,
+                        selected,
+                        quantity
+                )
+        );
+    }
+}
