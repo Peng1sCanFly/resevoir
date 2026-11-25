@@ -48,7 +48,7 @@ public class PaymentScreen {
 
         Label subtitleLabel =
                 new Label(
-                        "Complete your payment to confirm your reservation."
+                        "Demo payment only. Use test card information."
                 );
 
         // =====================================================
@@ -308,7 +308,7 @@ public class PaymentScreen {
             // =================================================
 
             messageLabel.setText(
-                    "Payment successful!"
+                    "Confirming reservation..."
             );
 
             // Disable fields after successful payment
@@ -322,7 +322,13 @@ public class PaymentScreen {
             backButton.setDisable(true);
 
             // Continue reservation process
-            paymentSuccessAction.run();
+            try {
+                paymentSuccessAction.run();
+            } catch (RuntimeException ex) {
+                ex.printStackTrace();
+                messageLabel.setText("Could not confirm reservation. See NetBeans Output.");
+                backButton.setDisable(false);
+            }
         });
 
         // =====================================================

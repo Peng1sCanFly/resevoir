@@ -1,6 +1,7 @@
 package projectcsi.reservoir;
 
 import java.util.ArrayList;
+import java.sql.SQLException;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -18,6 +19,18 @@ public class MyReservationsScreen {
     private Stage stage;
     private ArrayList<Reservation> reservations;
     private Runnable backToDashboard;
+    private Account account;
+
+    public void setAccount(Account account) {
+        this.account = account;
+    }
+
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
 
     public MyReservationsScreen(
             Stage stage,
@@ -30,6 +43,23 @@ public class MyReservationsScreen {
     }
 
     public void show() {
+        if (account == null) {
+            showError("Please log in to view reservations.");
+            backToDashboard.run();
+            return;
+        }
+
+        try {
+            ArrayList<Reservation> saved = ReservationDAO.getReservations(
+                    account.getAccountId());
+            reservations.clear();
+            reservations.addAll(saved);
+        } catch (SQLException e) {
+            showError("Could not load reservations. Please try again.");
+            backToDashboard.run();
+            return;
+        }
+
 
         // =====================================================
         // TITLE
@@ -112,6 +142,9 @@ public class MyReservationsScreen {
                         new Label(
                                 "Time: "
                                 + reservation.getTime()
+                                + (reservation.getEndTime() == null
+                                   || reservation.getEndTime().isEmpty()
+                                   ? "" : " - " + reservation.getEndTime())
                         );
 
                 Label quantityLabel =
@@ -186,12 +219,17 @@ public class MyReservationsScreen {
                                 if (response
                                         == ButtonType.OK) {
 
-                                    reservations.remove(
-                                            reservation
-                                    );
-
-                                    // Refresh screen
-                                    show();
+                                    try {
+                                        boolean canceled = ReservationDAO.cancelReservation(
+                                                account.getAccountId(),
+                                                reservation.getReservationId());
+                                        if (!canceled) {
+                                            showError("Reservation no longer exists or cannot be canceled.");
+                                        }
+                                        show();
+                                    } catch (SQLException e) {
+                                        showError("Could not cancel reservation. Please try again.");
+                                    }
                                 }
                             });
                 });
