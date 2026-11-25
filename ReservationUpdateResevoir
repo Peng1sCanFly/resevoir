@@ -1,0 +1,129 @@
+package projectcsi.reservoir;
+
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+
+public class Reservation {
+
+    private String eventName;
+    private String location;
+    private String date;
+    private String time;
+    private int numberOfTickets;
+    private double pricePerTicket;
+    private double totalCost;
+
+    private String section;
+    private String category = "";
+
+    private List<String> seatIds =
+            Collections.emptyList();
+
+    // RESERVATION WITHOUT SEATING
+    public Reservation(
+            String eventName,
+            String location,
+            String date,
+            String time,
+            int numberOfTickets,
+            double pricePerTicket) {
+
+        this(eventName, location, date, time,
+                numberOfTickets, pricePerTicket, "");
+    }
+
+    // RESERVATION WITH SECTION
+    public Reservation(
+            String eventName,
+            String location,
+            String date,
+            String time,
+            int numberOfTickets,
+            double pricePerTicket,
+            String section) {
+
+        this.eventName = eventName;
+        this.location = location;
+        this.date = date;
+        this.time = time;
+        this.numberOfTickets = numberOfTickets;
+        this.pricePerTicket = pricePerTicket;
+        this.totalCost = numberOfTickets * pricePerTicket;
+        this.section = section;
+    }
+
+    // RESERVATION WITH INDIVIDUAL SEATS
+    public Reservation(
+            String eventName,
+            String location,
+            String date,
+            String time,
+            int numberOfTickets,
+            double pricePerTicket,
+            String category,
+            Collection<String> seatIds,
+            String description) {
+
+        this(
+                eventName,
+                location,
+                date,
+                time,
+                numberOfTickets,
+                pricePerTicket,
+                description
+        );
+
+        this.category = category;
+
+        this.seatIds = Collections.unmodifiableList(
+                new ArrayList<>(seatIds)
+        );
+    }
+
+    public String getEventName() {
+        return eventName;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public int getNumberOfTickets() {
+        return numberOfTickets;
+    }
+
+    public double getPricePerTicket() {
+        return pricePerTicket;
+    }
+
+    public double getTotalCost() {
+        return totalCost;
+    }
+
+    public String getSection() {
+        return section;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public List<String> getSeatIds() {
+        return seatIds;
+    }
+
+    public boolean hasSection() {
+        return section != null && !section.isEmpty();
+    }
+}
