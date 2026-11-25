@@ -1,6 +1,7 @@
 package projectcsi.reservoir;
 
 import java.util.ArrayList;
+import java.sql.SQLException;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -21,6 +22,11 @@ import javafx.stage.Stage;
 public class App extends Application {
 
     private Stage stage;
+    private Account currentAccount;
+
+    public Account getCurrentAccount() {
+        return currentAccount;
+    }
 
     private ArrayList<Event> events =
             new ArrayList<>();
@@ -231,8 +237,20 @@ public static void applyStylesheet(Scene scene) {
                 );
 
             } else {
-
-                showDashboard();
+                try {
+                    Account account = AccountDAO.login(
+                            emailField.getText(), passwordField.getText());
+                    if (account == null) {
+                        messageLabel.setText("Invalid email or password.");
+                        passwordField.clear();
+                        return;
+                    }
+                    currentAccount = account;
+                    passwordField.clear();
+                    showDashboard();
+                } catch (SQLException | IllegalStateException e) {
+                    messageLabel.setText("Login unavailable. Please try again.");
+                }
             }
         });
 
@@ -405,9 +423,28 @@ public static void applyStylesheet(Scene scene) {
                 return;
             }
 
-            messageLabel.setText(
-                    "Account created successfully!"
-            );
+            if (!email.getText().trim().matches("[^\\s@]+@[^\\s@]+\\.[^\\s@]+")) {
+                messageLabel.setText("Please enter a valid email address.");
+                return;
+            }
+            if (password.getText().length() < 15) {
+                messageLabel.setText("Use a password of at least 15 characters.");
+                return;
+            }
+            try {
+                boolean created = AccountDAO.createAccount(
+                        firstName.getText(), lastName.getText(),
+                        email.getText(), password.getText());
+                if (created) {
+                    messageLabel.setText("Account created successfully! Return home to log in.");
+                    password.clear();
+                    confirmPassword.clear();
+                } else {
+                    messageLabel.setText("An account with this email already exists.");
+                }
+            } catch (SQLException | IllegalStateException e) {
+                messageLabel.setText("Account creation unavailable. Please try again.");
+            }
         });
 
         backButton.setOnAction(
@@ -462,7 +499,7 @@ public static void applyStylesheet(Scene scene) {
         );
 
         Label welcome =
-                new Label("Welcome!");
+                new Label("Welcome, " + currentAccount.getFirstName() + "!");
 
         Button eventsButton =
                 new Button("Join Local Events");
@@ -596,6 +633,7 @@ calendarBox.setAlignment(Pos.CENTER);
                             this::showDashboard
                     );
 
+            screen.setAccount(currentAccount);
             screen.show();
         });
 
@@ -626,10 +664,14 @@ calendarBox.setAlignment(Pos.CENTER);
         });
 
         // LOGOUT
-        logoutButton.setOnAction(
-                action ->
-                        showWelcomeScreen()
-        );
+        logoutButton.setOnAction(action -> {
+            currentAccount = null;
+            // Clear temporary account data until database storage is integrated.
+            reservations.clear();
+            favorites.clear();
+            events.clear();
+            showWelcomeScreen();
+        });
 
 
        //ACCOUNT BUTTON
@@ -762,6 +804,12 @@ calendarBox.setAlignment(Pos.CENTER);
                         new VBox(
                                 15,
                                 title,
+                                new Label("Name: " + currentAccount.getFullName()),
+                                new Label("Email: " + currentAccount.getEmail()),
+                                new Label("Phone: " + (currentAccount.getPhoneNumber() == null
+                                        ? "Not provided" : currentAccount.getPhoneNumber())),
+                                new Label("Billing address: " + (currentAccount.getBillingAddress() == null
+                                        ? "Not provided" : currentAccount.getBillingAddress())),
                                 backButton
                         );
 
@@ -947,6 +995,7 @@ calendarBox.setAlignment(Pos.CENTER);
                         this::showEventsScreen
                 );
 
+        screen.setAccount(currentAccount);
         screen.show();
     }
 

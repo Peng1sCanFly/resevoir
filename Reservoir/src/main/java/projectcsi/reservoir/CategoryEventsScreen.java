@@ -1,6 +1,16 @@
 package projectcsi.reservoir;
 
 import java.util.ArrayList;
+import java.time.LocalTime;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.ResolverStyle;
+import java.time.format.DateTimeParseException;
+import java.util.Locale;
+import java.sql.SQLException;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ScrollPane;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -18,6 +28,12 @@ import javafx.stage.Stage;
 public class CategoryEventsScreen {
 
     private Stage stage;
+    private Account account;
+    private String savedEndTime = "";
+
+    public void setAccount(Account account) {
+        this.account = account;
+    }
     private ArrayList<Event> events;
     private ArrayList<Reservation> reservations;
     private ArrayList<Favorite> favorites;
@@ -289,7 +305,7 @@ public class CategoryEventsScreen {
         // =====================================================
 
         Label timeLabel =
-                new Label("Time");
+                new Label("Start Time");
 
         TextField timeField =
                 new TextField();
@@ -299,6 +315,11 @@ public class CategoryEventsScreen {
         );
 
         timeField.setMaxWidth(350);
+        Label endTimeLabel = new Label("End Time (same day)");
+        TextField endTimeField = new TextField();
+        endTimeField.setPromptText("Example: 9:00 PM");
+        endTimeField.setMaxWidth(350);
+        endTimeField.setText(savedEndTime);
 
         // =====================================================
         // PEOPLE / TICKETS
@@ -568,6 +589,7 @@ public class CategoryEventsScreen {
                 return;
             }
 
+            savedEndTime = endTimeField.getText().trim();
             // Save everything before leaving this screen
             savedType = selectedType;
 
@@ -756,6 +778,10 @@ costField.textProperty().addListener((observable, oldValue, newValue) -> {
 
         paymentButton.setOnAction(action -> {
 
+            if (account == null) {
+                messageLabel.setText("Please log in before booking.");
+                return;
+            }
             String selectedType =
                     typeBox.getValue();
 
@@ -868,21 +894,28 @@ costField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 .toString();
 
                 // =================================================
-                // DOUBLE-BOOKING PREVENTION
+                // DATABASE BOOKING VALIDATION
                 // =================================================
-
-                if (alreadyReserved(
-                        eventName,
-                        location,
-                        date,
-                        time)) {
-
-                    messageLabel.setText(
-                            "You already have a reservation for this event."
-                    );
-
+                final LocalDate bookingDate = datePicker.getValue();
+                final LocalTime startTime;
+                final LocalTime endTime;
+                try {
+                    startTime = parseBookingTime(time);
+                    endTime = parseBookingTime(endTimeField.getText());
+                } catch (DateTimeParseException ex) {
+                    messageLabel.setText("Enter valid times, e.g. 7:00 PM and 9:00 PM.");
                     return;
                 }
+                if (!endTime.isAfter(startTime)) {
+                    messageLabel.setText("End time must be after start time on the same day.");
+                    return;
+                }
+                if (!Double.isFinite(cost) || !Double.isFinite(quantity * cost)) {
+                    messageLabel.setText("Enter a valid cost.");
+                    return;
+                }
+                savedEndTime = endTimeField.getText().trim();
+                final int accountId = account.getAccountId();
 
                 double total =
                         quantity * cost;
@@ -966,13 +999,32 @@ costField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 // PAYMENT SUCCESS
                                 () -> {
 
-                                    reservations.add(
-                                            pendingReservation
-                                    );
-
-                                    showPaymentSuccessScreen(
-                                            pendingReservation
-                                    );
+                                    try {
+                                        System.out.println("Reservoir: attempting database reservation for account " + accountId);
+                                        boolean saved = ReservationDAO.saveReservation(
+                                                accountId, pendingReservation,
+                                                bookingDate, startTime, endTime);
+                                        if (!saved) {
+                                            showBookingError("Duplicate or overlapping reservation. No booking was saved.");
+                                            return;
+                                        }
+                                    } catch (SQLException | IllegalArgumentException ex) {
+                                        ex.printStackTrace();
+                                        showBookingError("Could not save reservation. See NetBeans Output for details.");
+                                        return;
+                                    }
+                                    try {
+                                        ArrayList<Reservation> stored = ReservationDAO.getReservations(accountId);
+                                        reservations.clear();
+                                        reservations.addAll(stored);
+                                        System.out.println("Reservoir: database save committed; account reservation count = " + stored.size());
+                                    } catch (SQLException ex) {
+                                        // Booking was already committed; do not attempt it again.
+                                        ex.printStackTrace();
+                                        System.out.println("Reservoir: database save committed, but refresh failed.");
+                                        reservations.clear();
+                                    }
+                                    showPaymentSuccessScreen(pendingReservation);
                                 },
 
                                 // BACK TO RESERVATION
@@ -1124,6 +1176,8 @@ costField.textProperty().addListener((observable, oldValue, newValue) -> {
 
                         timeLabel,
                         timeField,
+                        endTimeLabel,
+                        endTimeField,
 
                         quantityLabel,
                         quantityField,
@@ -1151,12 +1205,9 @@ costField.textProperty().addListener((observable, oldValue, newValue) -> {
                 new Insets(25)
         );
 
-        Scene scene =
-                new Scene(
-                        layout,
-                        900,
-                        800
-                );
+        ScrollPane scrollPane = new ScrollPane(layout);
+        scrollPane.setFitToWidth(true);
+        Scene scene = new Scene(scrollPane, 900, 800);
 
         stage.setScene(scene);
     }
@@ -1164,6 +1215,25 @@ costField.textProperty().addListener((observable, oldValue, newValue) -> {
     // =========================================================
     // CHECK FOR EXISTING RESERVATION
     // =========================================================
+
+    private static LocalTime parseBookingTime(String value) {
+        DateTimeFormatter twelveHour = new DateTimeFormatterBuilder()
+                .parseCaseInsensitive().appendPattern("h:mm a")
+                .toFormatter(Locale.US).withResolverStyle(ResolverStyle.STRICT);
+        try {
+            return LocalTime.parse(value.trim(), twelveHour);
+        } catch (DateTimeParseException ex) {
+            return LocalTime.parse(value.trim(), DateTimeFormatter.ISO_LOCAL_TIME);
+        }
+    }
+
+    private void showBookingError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setHeaderText("Reservation not confirmed");
+        alert.setContentText(message);
+        alert.showAndWait();
+        show();
+    }
 
     private boolean alreadyReserved(
             String eventName,
@@ -1222,7 +1292,7 @@ costField.textProperty().addListener((observable, oldValue, newValue) -> {
 
         Label titleLabel =
                 new Label(
-                        "PAYMENT SUCCESSFUL!"
+                        "BOOKING SAVED TO MYSQL!"
                 );
 
         titleLabel.setStyle(
@@ -1232,7 +1302,7 @@ costField.textProperty().addListener((observable, oldValue, newValue) -> {
 
         Label confirmationLabel =
                 new Label(
-                        "Your reservation has been confirmed."
+                        "Your reservation has been confirmed and saved to MySQL."
                 );
 
         confirmationLabel.setStyle(
@@ -1377,6 +1447,7 @@ Label locationLabel =
         savedTime = "";
         savedQuantity = "";
         savedCost = "";
+        savedEndTime = "";
         selectedSection = "";
     }
 }
