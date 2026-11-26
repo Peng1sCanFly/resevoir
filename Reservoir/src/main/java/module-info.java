@@ -1,3 +1,4 @@
+
 module projectcsi.reservoir {
 
     requires javafx.controls;
@@ -7,8 +8,9 @@ module projectcsi.reservoir {
     // Allows the application to read Photon JSON responses.
     requires com.fasterxml.jackson.databind;
 
-    // MySQL database connectivity.
+    // SQLite database connectivity.
     requires java.sql;
+    requires org.xerial.sqlitejdbc;
 
     exports projectcsi.reservoir;
 

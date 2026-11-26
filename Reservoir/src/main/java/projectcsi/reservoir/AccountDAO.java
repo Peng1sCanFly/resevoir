@@ -18,7 +18,8 @@ public class AccountDAO {
 
         String sql = "INSERT INTO accounts "
                 + "(first_name, last_name, email, password_hash) "
-                + "VALUES (?, ?, ?, ?)";
+                + "VALUES (?, ?, ?, ?) "
+                + "ON CONFLICT(email) DO NOTHING";
 
         String passwordHash =
                 PasswordUtil.hashPassword(password);
@@ -33,16 +34,8 @@ public class AccountDAO {
             stmt.setString(3, normalizeEmail(email));
             stmt.setString(4, passwordHash);
 
+            // Returns false if the email already exists.
             return stmt.executeUpdate() == 1;
-
-        } catch (SQLException e) {
-
-            // MySQL duplicate entry error.
-            if (e.getErrorCode() == 1062) {
-                return false;
-            }
-
-            throw e;
         }
     }
 

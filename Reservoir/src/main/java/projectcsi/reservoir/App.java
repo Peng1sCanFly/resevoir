@@ -427,8 +427,8 @@ public static void applyStylesheet(Scene scene) {
                 messageLabel.setText("Please enter a valid email address.");
                 return;
             }
-            if (password.getText().length() < 15) {
-                messageLabel.setText("Use a password of at least 15 characters.");
+            if (password.getText().length() < 8) {
+                messageLabel.setText("Use a password of at least 8 characters.");
                 return;
             }
             try {
