@@ -1,3 +1,4 @@
+
 package projectcsi.reservoir;
 
 import javafx.geometry.Insets;
@@ -10,388 +11,346 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+// Automatic filling of card information
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 public class PaymentScreen {
 
-    private Stage stage;
-    private String eventName;
-    private double totalCost;
-    private Runnable paymentSuccessAction;
-    private Runnable backAction;
-
-    public PaymentScreen(
-            Stage stage,
-            String eventName,
-            double totalCost,
-            Runnable paymentSuccessAction,
-            Runnable backAction) {
-
-        this.stage = stage;
-        this.eventName = eventName;
-        this.totalCost = totalCost;
-        this.paymentSuccessAction = paymentSuccessAction;
-        this.backAction = backAction;
-    }
-
-    public void show() {
-
-        // =====================================================
-        // TITLE
-        // =====================================================
-
-        Label titleLabel =
-                new Label("PAYMENT");
-
-        titleLabel.setStyle(
-                "-fx-font-size: 30px;"
-                + "-fx-font-weight: bold;"
-        );
-
-        Label subtitleLabel =
-                new Label(
-                        "Demo payment only. Use test card information."
-                );
+        private Stage stage;
+        private String eventName;
+        private double totalCost;
+        private Runnable paymentSuccessAction;
+        private Runnable backAction;
+        private Account currentAccount;
 
-        // =====================================================
-        // EVENT INFORMATION
-        // =====================================================
+        public PaymentScreen(
+                        Stage stage,
+                        String eventName,
+                        double totalCost,
+                        Runnable paymentSuccessAction,
+                        Runnable backAction) {
 
-        Label eventLabel =
-                new Label(
-                        "Event: "
-                        + eventName
-                );
+                this.stage = stage;
+                this.eventName = eventName;
+                this.totalCost = totalCost;
+                this.paymentSuccessAction = paymentSuccessAction;
+                this.backAction = backAction;
 
-        eventLabel.setStyle(
-                "-fx-font-size: 18px;"
-                + "-fx-font-weight: bold;"
-        );
+                // Retrieve the currently logged-in account from App.
+                App app = App.getInstance();
+                this.currentAccount = (app == null)
+                                ? null
+                                : app.getCurrentAccount();
+        }
 
-        Label totalLabel =
-                new Label(
-                        String.format(
-                                "Total: $%.2f",
-                                totalCost
-                        )
-                );
+        public void show() {
 
-        totalLabel.setStyle(
-                "-fx-font-size: 20px;"
-                + "-fx-font-weight: bold;"
-        );
+                // =====================================================
+                // TITLE
+                // =====================================================
 
-        // =====================================================
-        // NAME ON CARD
-        // =====================================================
+                Label titleLabel = new Label("PAYMENT");
 
-        Label nameLabel =
-                new Label("Name on Card");
+                titleLabel.setStyle(
+                                "-fx-font-size: 30px;"
+                                                + "-fx-font-weight: bold;");
 
-        TextField nameField =
-                new TextField();
+                // =====================================================
+                // EVENT INFORMATION
+                // =====================================================
 
-        nameField.setPromptText(
-                "Enter name on card"
-        );
+                Label eventLabel = new Label(
+                                "Event: " + eventName);
 
-        nameField.setMaxWidth(350);
+                eventLabel.setStyle(
+                                "-fx-font-size: 18px;"
+                                                + "-fx-font-weight: bold;");
 
-        // =====================================================
-        // CARD NUMBER
-        // =====================================================
-
-        Label cardNumberLabel =
-                new Label("Card Number");
-
-        TextField cardNumberField =
-                new TextField();
+                Label totalLabel = new Label(
+                                String.format("Total: $%.2f", totalCost));
 
-        cardNumberField.setPromptText(
-                "1234 5678 9012 3456"
-        );
+                totalLabel.setStyle(
+                                "-fx-font-size: 20px;"
+                                                + "-fx-font-weight: bold;");
 
-        cardNumberField.setMaxWidth(350);
+                // =====================================================
+                // NAME ON CARD
+                // =====================================================
 
-        // =====================================================
-        // EXPIRATION DATE
-        // =====================================================
+                Label nameLabel = new Label("Name on Card");
 
-        Label expirationLabel =
-                new Label("Expiration Date");
+                TextField nameField = new TextField();
 
-        TextField expirationField =
-                new TextField();
+                nameField.setPromptText("Enter name on card");
+                nameField.setMaxWidth(350);
 
-        expirationField.setPromptText(
-                "MM/YY"
-        );
+                // =====================================================
+                // CARD NUMBER
+                // =====================================================
 
-        expirationField.setMaxWidth(350);
+                Label cardNumberLabel = new Label("Card Number");
 
-        // =====================================================
-        // CVV
-        // =====================================================
+                TextField cardNumberField = new TextField();
 
-        Label cvvLabel =
-                new Label("CVV");
+                cardNumberField.setPromptText("1234 5678 9012 3456");
+                cardNumberField.setMaxWidth(350);
 
-        PasswordField cvvField =
-                new PasswordField();
+                // =====================================================
+                // EXPIRATION DATE
+                // =====================================================
 
-        cvvField.setPromptText(
-                "3 digits"
-        );
+                Label expirationLabel = new Label("Expiration Date");
 
-        cvvField.setMaxWidth(350);
+                TextField expirationField = new TextField();
 
-        // =====================================================
-        // BILLING ZIP
-        // =====================================================
+                expirationField.setPromptText("MM/YY");
+                expirationField.setMaxWidth(350);
 
-        Label zipLabel =
-                new Label("Billing ZIP Code");
+                // =====================================================
+                // AUTOFILL SAVED CARD INFORMATION
+                // =====================================================
 
-        TextField zipField =
-                new TextField();
+                if (currentAccount != null) {
 
-        zipField.setPromptText(
-                "Enter ZIP code"
-        );
+                        String sql = "SELECT card_number, expiration_month, expiration_year "
+                                        + "FROM payment_methods "
+                                        + "WHERE account_id = ? "
+                                        + "ORDER BY payment_id DESC LIMIT 1";
 
-        zipField.setMaxWidth(350);
+                        try (Connection connection = DatabaseConnection.getConnection();
+                                        PreparedStatement statement = connection.prepareStatement(sql)) {
 
-        // =====================================================
-        // MESSAGE
-        // =====================================================
+                                statement.setInt(1, currentAccount.getAccountId());
 
-        Label messageLabel =
-                new Label();
+                                try (ResultSet resultSet = statement.executeQuery()) {
 
-        messageLabel.setWrapText(true);
+                                        if (resultSet.next()) {
 
-        // =====================================================
-        // PAY BUTTON
-        // =====================================================
+                                                String savedCardNumber = resultSet.getString("card_number");
 
-        Button payButton =
-                new Button(
-                        String.format(
-                                "Pay $%.2f",
-                                totalCost
-                        )
-                );
+                                                if (savedCardNumber != null) {
+                                                        cardNumberField.setText(savedCardNumber);
+                                                }
 
-        payButton.setPrefSize(
-                250,
-                40
-        );
+                                                int month = resultSet.getInt("expiration_month");
+                                                int year = resultSet.getInt("expiration_year");
 
-        // =====================================================
-        // BACK BUTTON
-        // =====================================================
+                                                expirationField.setText(
+                                                                String.format("%02d/%02d", month, year % 100));
+                                        }
+                                }
 
-        Button backButton =
-                new Button(
-                        "Back to Reservation"
-                );
+                        } catch (SQLException e) {
+                                e.printStackTrace();
+                        }
+                }
 
-        backButton.setPrefSize(
-                250,
-                40
-        );
+                // =====================================================
+                // CVV
+                // =====================================================
 
-        // =====================================================
-        // PAY BUTTON ACTION
-        // =====================================================
+                Label cvvLabel = new Label("CVV");
 
-        payButton.setOnAction(action -> {
+                PasswordField cvvField = new PasswordField();
 
-            String name =
-                    nameField
-                            .getText()
-                            .trim();
+                cvvField.setPromptText("3 digits");
+                cvvField.setMaxWidth(350);
 
-            String cardNumber =
-                    cardNumberField
-                            .getText()
-                            .replace(" ", "")
-                            .replace("-", "")
-                            .trim();
+                // =====================================================
+                // BILLING ZIP
+                // =====================================================
 
-            String expiration =
-                    expirationField
-                            .getText()
-                            .trim();
+                Label zipLabel = new Label("Billing ZIP Code");
 
-            String cvv =
-                    cvvField
-                            .getText()
-                            .trim();
+                TextField zipField = new TextField();
 
-            String zip =
-                    zipField
-                            .getText()
-                            .trim();
+                zipField.setPromptText("Enter ZIP code");
+                zipField.setMaxWidth(350);
 
-            // =================================================
-            // CHECK EMPTY FIELDS
-            // =================================================
+                // =====================================================
+                // MESSAGE
+                // =====================================================
 
-            if (name.isEmpty()
-                    || cardNumber.isEmpty()
-                    || expiration.isEmpty()
-                    || cvv.isEmpty()
-                    || zip.isEmpty()) {
+                Label messageLabel = new Label();
 
-                messageLabel.setText(
-                        "Please complete all payment fields."
-                );
+                messageLabel.setWrapText(true);
 
-                return;
-            }
+                // =====================================================
+                // PAY BUTTON
+                // =====================================================
 
-            // =================================================
-            // CARD NUMBER VALIDATION
-            // =================================================
+                Button payButton = new Button(
+                                String.format("Pay $%.2f", totalCost));
 
-            if (!cardNumber.matches("\\d{16}")) {
+                payButton.setPrefSize(250, 40);
 
-                messageLabel.setText(
-                        "Card number must contain 16 digits."
-                );
+                // =====================================================
+                // BACK BUTTON
+                // =====================================================
 
-                return;
-            }
+                Button backButton = new Button("Back to Reservation");
 
-            // =================================================
-            // EXPIRATION VALIDATION
-            // =================================================
+                backButton.setPrefSize(250, 40);
 
-            if (!expiration.matches(
-                    "(0[1-9]|1[0-2])/\\d{2}"
-            )) {
+                // =====================================================
+                // PAY BUTTON ACTION
+                // =====================================================
 
-                messageLabel.setText(
-                        "Expiration date must use MM/YY."
-                );
+                payButton.setOnAction(action -> {
 
-                return;
-            }
+                        String name = nameField
+                                        .getText()
+                                        .trim();
 
-            // =================================================
-            // CVV VALIDATION
-            // =================================================
+                        String cardNumber = cardNumberField
+                                        .getText()
+                                        .replace(" ", "")
+                                        .replace("-", "")
+                                        .trim();
 
-            if (!cvv.matches("\\d{3}")) {
+                        String expiration = expirationField
+                                        .getText()
+                                        .trim();
 
-                messageLabel.setText(
-                        "CVV must contain 3 digits."
-                );
+                        String cvv = cvvField
+                                        .getText()
+                                        .trim();
 
-                return;
-            }
+                        String zip = zipField
+                                        .getText()
+                                        .trim();
 
-            // =================================================
-            // ZIP CODE VALIDATION
-            // =================================================
-
-            if (!zip.matches("\\d{5}")) {
-
-                messageLabel.setText(
-                        "ZIP code must contain 5 digits."
-                );
-
-                return;
-            }
-
-            // =================================================
-            // MOCK PAYMENT SUCCESS
-            // =================================================
-
-            messageLabel.setText(
-                    "Confirming reservation..."
-            );
-
-            // Disable fields after successful payment
-            nameField.setDisable(true);
-            cardNumberField.setDisable(true);
-            expirationField.setDisable(true);
-            cvvField.setDisable(true);
-            zipField.setDisable(true);
-
-            payButton.setDisable(true);
-            backButton.setDisable(true);
-
-            // Continue reservation process
-            try {
-                paymentSuccessAction.run();
-            } catch (RuntimeException ex) {
-                ex.printStackTrace();
-                messageLabel.setText("Could not confirm reservation. See NetBeans Output.");
-                backButton.setDisable(false);
-            }
-        });
-
-        // =====================================================
-        // BACK BUTTON ACTION
-        // =====================================================
-
-        backButton.setOnAction(
-                action ->
-                        backAction.run()
-        );
-
-        // =====================================================
-        // MAIN LAYOUT
-        // =====================================================
-
-        VBox layout =
-                new VBox(
-                        9,
-                        titleLabel,
-                        subtitleLabel,
-
-                        eventLabel,
-                        totalLabel,
-
-                        nameLabel,
-                        nameField,
-
-                        cardNumberLabel,
-                        cardNumberField,
-
-                        expirationLabel,
-                        expirationField,
-
-                        cvvLabel,
-                        cvvField,
-
-                        zipLabel,
-                        zipField,
-
-                        payButton,
-                        messageLabel,
-                        backButton
-                );
-
-        layout.setAlignment(
-                Pos.CENTER
-        );
-
-        layout.setPadding(
-                new Insets(30)
-        );
-
-        // =====================================================
-        // SCENE
-        // =====================================================
-
-        Scene scene =
-                new Scene(
-                        layout,
-                        900,
-                        700
-                );
-        App.applyStylesheet(scene);
-        stage.setScene(scene);
-    }
+                        // =================================================
+                        // CHECK EMPTY FIELDS
+                        // =================================================
+
+                        if (name.isEmpty()
+                                        || cardNumber.isEmpty()
+                                        || expiration.isEmpty()
+                                        || cvv.isEmpty()
+                                        || zip.isEmpty()) {
+
+                                messageLabel.setText(
+                                                "Please complete all payment fields.");
+
+                                return;
+                        }
+
+                        // =================================================
+                        // CARD NUMBER VALIDATION
+                        // =================================================
+
+                        if (!cardNumber.matches("\\d{16}")) {
+
+                                messageLabel.setText(
+                                                "Card number must contain 16 digits.");
+
+                                return;
+                        }
+
+                        // =================================================
+                        // EXPIRATION VALIDATION
+                        // =================================================
+
+                        if (!expiration.matches("(0[1-9]|1[0-2])/\\d{2}")) {
+
+                                messageLabel.setText(
+                                                "Expiration date must use MM/YY.");
+
+                                return;
+                        }
+
+                        // =================================================
+                        // CVV VALIDATION
+                        // =================================================
+
+                        if (!cvv.matches("\\d{3}")) {
+
+                                messageLabel.setText(
+                                                "CVV must contain 3 digits.");
+
+                                return;
+                        }
+
+                        // =================================================
+                        // ZIP CODE VALIDATION
+                        // =================================================
+
+                        if (!zip.matches("\\d{5}")) {
+
+                                messageLabel.setText(
+                                                "ZIP code must contain 5 digits.");
+
+                                return;
+                        }
+
+                        // =================================================
+                        // MOCK PAYMENT SUCCESS
+                        // =================================================
+
+                        messageLabel.setText("Confirming reservation...");
+
+                        nameField.setDisable(true);
+                        cardNumberField.setDisable(true);
+                        expirationField.setDisable(true);
+                        cvvField.setDisable(true);
+                        zipField.setDisable(true);
+
+                        payButton.setDisable(true);
+                        backButton.setDisable(true);
+
+                        // Continue reservation process
+                        try {
+                                paymentSuccessAction.run();
+                        } catch (RuntimeException ex) {
+                                ex.printStackTrace();
+                                messageLabel.setText("Could not confirm reservation. See Output.");
+                                backButton.setDisable(false);
+                        }
+                });
+
+                // =====================================================
+                // BACK BUTTON ACTION
+                // =====================================================
+
+                backButton.setOnAction(action -> backAction.run());
+
+                // =====================================================
+                // MAIN LAYOUT
+                // =====================================================
+
+                VBox layout = new VBox(
+                                9,
+                                titleLabel,
+                                eventLabel,
+                                totalLabel,
+                                nameLabel,
+                                nameField,
+                                cardNumberLabel,
+                                cardNumberField,
+                                expirationLabel,
+                                expirationField,
+                                cvvLabel,
+                                cvvField,
+                                zipLabel,
+                                zipField,
+                                payButton,
+                                messageLabel,
+                                backButton);
+
+                layout.setAlignment(Pos.CENTER);
+                layout.setPadding(new Insets(30));
+
+                // =====================================================
+                // SCENE
+                // =====================================================
+
+                Scene scene = new Scene(layout, 900, 700);
+
+                App.applyStylesheet(scene);
+                stage.setScene(scene);
+        }
 }

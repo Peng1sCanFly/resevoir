@@ -1,5 +1,7 @@
+/* =====================================================
+   RESERVOIR - GLOBAL THEME
+   ===================================================== */
 
-/* MAIN PAGE BACKGROUND */
 .root {
     -fx-background-color: linear-gradient(
         to bottom,
@@ -9,12 +11,77 @@
     -fx-color: #12284B;
 }
 
-/* LABELS */
+/* =====================================================
+   LABELS AND HEADINGS
+   ===================================================== */
+
 .label {
     -fx-text-fill: black;
 }
 
-/* BUTTONS */
+.welcome-title {
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+}
+
+.page-title {
+    -fx-font-size: 30px;
+    -fx-font-weight: bold;
+}
+
+.dashboard-title {
+    -fx-font-size: 34px;
+    -fx-font-weight: bold;
+}
+
+.section-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.status-message {
+    -fx-text-fill: #12284B;
+    -fx-font-weight: bold;
+}
+
+/* =====================================================
+   PAGE LAYOUTS
+   ===================================================== */
+
+.welcome-layout {
+    -fx-spacing: 15px;
+    -fx-padding: 40px;
+    -fx-alignment: center;
+}
+
+.login-layout {
+    -fx-spacing: 12px;
+    -fx-padding: 40px;
+    -fx-alignment: center;
+}
+
+.create-account-layout {
+    -fx-spacing: 10px;
+    -fx-padding: 30px;
+    -fx-alignment: center;
+}
+
+.account-layout {
+    -fx-spacing: 15px;
+    -fx-padding: 40px;
+    -fx-alignment: center;
+}
+
+.events-layout {
+    -fx-spacing: 15px;
+    -fx-padding: 40px;
+    -fx-alignment: center;
+}
+
+/* =====================================================
+   BUTTONS
+   ===================================================== */
+
 .button {
     -fx-background-color: #C2DEF5;
     -fx-text-fill: black;
@@ -26,26 +93,68 @@
     -fx-cursor: hand;
 }
 
-/* BUTTON HOVER */
 .button:hover {
     -fx-background-color: #A9D0F0;
 }
 
-/* BUTTON PRESSED */
 .button:pressed {
     -fx-background-color: #8BBBE3;
 }
 
-/* TEXT FIELDS */
-.text-field {
+.action-button,
+.navigation-button {
+    -fx-pref-width: 200px;
+    -fx-min-width: 200px;
+    -fx-max-width: 200px;
+    -fx-pref-height: 35px;
+    -fx-min-height: 35px;
+    -fx-max-height: 35px;
+}
+
+.event-button {
+    -fx-pref-width: 300px;
+    -fx-min-width: 300px;
+    -fx-max-width: 300px;
+    -fx-pref-height: 45px;
+    -fx-min-height: 45px;
+    -fx-max-height: 45px;
+}
+
+.dashboard-button {
+    -fx-pref-width: 300px;
+    -fx-min-width: 300px;
+    -fx-max-width: 300px;
+    -fx-pref-height: 40px;
+    -fx-min-height: 40px;
+    -fx-max-height: 40px;
+}
+
+/* =====================================================
+   TEXT INPUTS
+   ===================================================== */
+
+.text-field,
+.password-field {
     -fx-background-color: #8BBBE3;
     -fx-text-fill: black;
     -fx-background-radius: 6px;
     -fx-border-color: #12284B;
     -fx-border-radius: 6px;
+    -fx-prompt-text-fill: #12284B;
 }
 
-/* TEXT AREAS */
+.form-field {
+    -fx-pref-width: 300px;
+    -fx-min-width: 300px;
+    -fx-max-width: 300px;
+}
+
+.cvv-field {
+    -fx-pref-width: 150px;
+    -fx-min-width: 150px;
+    -fx-max-width: 150px;
+}
+
 .text-area {
     -fx-background-color: #8BBBE3;
     -fx-text-fill: black;
@@ -54,23 +163,66 @@
     -fx-border-radius: 6px;
 }
 
-/* DATE PICKER */
+.text-input {
+    -fx-prompt-text-fill: #12284B;
+}
+
+/* =====================================================
+   DATE PICKER AND COMBO BOX
+   ===================================================== */
+
 .date-picker {
     -fx-background-color: #8BBBE3;
     -fx-border-color: #12284B;
     -fx-border-radius: 6px;
 }
 
-/* TAB PANE HEADER / TAB BAR */
-.tab-pane .tab-header-area {
+.combo-box {
+    -fx-background-color: #8BBBE3;
+    -fx-border-color: #12284B;
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+}
+
+.combo-box-base .text {
+    -fx-prompt-text-fill: #12284B;
+}
+
+.combo-box .list-cell {
+    -fx-text-fill: #12284B;
+    -fx-background-color: #8BBBE3;
+}
+
+.combo-box .arrow {
     -fx-background-color: #12284B;
 }
 
+.combo-box-popup .list-view {
+    -fx-background-color: #8BBBE3;
+    -fx-border-color: #12284B;
+}
+
+.combo-box-popup .list-cell {
+    -fx-background-color: #8BBBE3;
+    -fx-text-fill: #12284B;
+}
+
+.combo-box-popup .list-cell:hover,
+.combo-box-popup .list-cell:selected {
+    -fx-background-color: #C2DEF5;
+    -fx-text-fill: #12284B;
+}
+
+/* =====================================================
+   TABS
+   ===================================================== */
+
+.tab-pane .tab-header-area,
 .tab-pane .tab-header-background {
     -fx-background-color: #12284B;
 }
 
-/* INDIVIDUAL TABS */
 .tab-pane .tab {
     -fx-background-color: #12284B;
     -fx-background-radius: 5px 5px 0 0;
@@ -81,7 +233,6 @@
     -fx-font-weight: bold;
 }
 
-/* SELECTED TAB */
 .tab-pane .tab:selected {
     -fx-background-color: #C2DEF5;
 }
@@ -89,76 +240,106 @@
 .tab-pane .tab:selected .tab-label {
     -fx-text-fill: #12284B;
 }
-/* DASHBOARD BUTTON SIZING ONLY */
-.dashboard-button {
-    -fx-min-width: 300px;
-    -fx-pref-width: 300px;
-    -fx-max-width: 300px;
 
-    -fx-min-height: 40px;
-    -fx-pref-height: 40px;
-    -fx-max-height: 40px;
-}
-/* UNIVERSAL HINT / PROMPT TEXT */
-.text-input {
-    -fx-prompt-text-fill: #12284B;
+/* =====================================================
+   DASHBOARD LAYOUT
+   ===================================================== */
+
+.dashboard-layout {
+    -fx-spacing: 50px;
+    -fx-padding: 30px;
+    -fx-alignment: center;
 }
 
-.combo-box-base .text {
-    -fx-prompt-text-fill: #12284B;
+.dashboard-header {
+    -fx-spacing: 50px;
+    -fx-alignment: center;
 }
 
-/* COMBO BOX */
-.combo-box {
-    -fx-background-color: #8BBBE3;
+.dashboard-content {
+    -fx-spacing: 50px;
+    -fx-alignment: center;
+}
+
+.dashboard-menu {
+    -fx-spacing: 12px;
+    -fx-alignment: center;
+}
+
+.calendar-layout {
+    -fx-spacing: 12px;
+    -fx-alignment: center;
+}
+
+.calendar-container {
+    -fx-spacing: 10px;
+    -fx-alignment: center;
+}
+
+.calendar-grid {
+    -fx-hgap: 10px;
+    -fx-vgap: 10px;
+    -fx-alignment: center;
+}
+
+.calendar-month {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #12284B;
+}
+
+.calendar-weekday {
+    -fx-text-fill: #12284B;
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+}
+
+.calendar-day {
+    -fx-min-width: 30px;
+    -fx-min-height: 30px;
+    -fx-alignment: center;
     -fx-border-color: #12284B;
     -fx-border-width: 1px;
-    -fx-border-radius: 6px;
-    -fx-background-radius: 6px;
-}
-
-/* COMBO BOX TEXT */
-.combo-box .list-cell {
-    -fx-text-fill: #12284B;
-    -fx-background-color: #8BBBE3;
-}
-
-/* COMBO BOX ARROW */
-.combo-box .arrow {
-    -fx-background-color: #12284B;
-}
-
-/* COMBO BOX DROPDOWN */
-.combo-box-popup .list-view {
-    -fx-background-color: #8BBBE3;
-    -fx-border-color: #12284B;
-}
-
-/* DROPDOWN OPTIONS */
-.combo-box-popup .list-cell {
-    -fx-background-color: #8BBBE3;
     -fx-text-fill: #12284B;
 }
 
-/* DROPDOWN HOVER */
-.combo-box-popup .list-cell:hover {
-    -fx-background-color: #C2DEF5;
-    -fx-text-fill: #12284B;
+.calendar-day.today {
+    -fx-background-color: yellow;
+    -fx-font-weight: bold;
 }
 
-/* DROPDOWN SELECTED OPTION */
-.combo-box-popup .list-cell:selected {
-    -fx-background-color: #C2DEF5;
-    -fx-text-fill: #12284B;
-}
-/* UNIVERSAL SCROLL PANE */
-.scroll-pane {
+/* =====================================================
+   ACCOUNT BUTTON
+   ===================================================== */
+
+.account-button {
+    -fx-pref-width: 44px;
+    -fx-pref-height: 44px;
+    -fx-min-width: 44px;
+    -fx-min-height: 44px;
+    -fx-max-width: 44px;
+    -fx-max-height: 44px;
     -fx-background-color: transparent;
-    -fx-background: transparent;
-    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 2px;
+    -fx-border-color: #12284B;
+    -fx-border-width: 1px;
+    -fx-border-radius: 50%;
+    -fx-background-radius: 50%;
 }
 
-/* UNIVERSAL SCROLL PANE */
+.account-button:hover {
+    -fx-background-color: #A9D0F0;
+}
+
+.account-button:pressed {
+    -fx-background-color: #8BBBE3;
+}
+
+/* =====================================================
+   SCROLL PANES AND SCROLL BARS
+   ===================================================== */
+
 .scroll-pane {
     -fx-background-color: linear-gradient(
         to bottom,
@@ -169,12 +350,10 @@
     -fx-border-color: transparent;
 }
 
-/* SCROLL PANE VIEWPORT */
 .scroll-pane > .viewport {
     -fx-background-color: transparent;
 }
 
-/* SCROLL BARS */
 .scroll-bar {
     -fx-background-color: transparent;
 }

@@ -12,14 +12,11 @@ import java.io.IOException;
 
 public class DatabaseConnection {
 
-    private static final Path DATABASE_DIRECTORY =
-            Paths.get(System.getProperty("user.home"), ".reservoir");
+    private static final Path DATABASE_DIRECTORY = Paths.get(System.getProperty("user.home"), ".reservoir");
 
-    private static final Path DATABASE_FILE =
-            DATABASE_DIRECTORY.resolve("reservoir.db");
+    private static final Path DATABASE_FILE = DATABASE_DIRECTORY.resolve("reservoir.db");
 
-    private static final String URL =
-            "jdbc:sqlite:" + DATABASE_FILE.toAbsolutePath();
+    private static final String URL = "jdbc:sqlite:" + DATABASE_FILE.toAbsolutePath();
 
     public static Connection getConnection() throws SQLException {
 
@@ -52,59 +49,56 @@ public class DatabaseConnection {
             throws SQLException {
 
         try (Statement stmt = connection.createStatement()) {
-
             // Create accounts table.
             stmt.execute(
                     "CREATE TABLE IF NOT EXISTS accounts ("
-                    + "account_id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                    + "first_name TEXT NOT NULL, "
-                    + "last_name TEXT NOT NULL, "
-                    + "email TEXT NOT NULL UNIQUE, "
-                    + "password_hash TEXT NOT NULL, "
-                    + "phone_number TEXT, "
-                    + "billing_address TEXT, "
-                    + "created_at TEXT DEFAULT CURRENT_TIMESTAMP"
-                    + ")"
-            );
+                            + "account_id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                            + "first_name TEXT NOT NULL, "
+                            + "last_name TEXT NOT NULL, "
+                            + "email TEXT NOT NULL UNIQUE, "
+                            + "password_hash TEXT NOT NULL, "
+                            + "phone_number TEXT, "
+                            + "billing_address TEXT, "
+                            + "created_at TEXT DEFAULT CURRENT_TIMESTAMP"
+                            + ")");
 
             // Create reservations table.
             stmt.execute(
                     "CREATE TABLE IF NOT EXISTS reservations ("
-                    + "reservation_id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                    + "account_id INTEGER NOT NULL, "
-                    + "event_name TEXT NOT NULL, "
-                    + "location TEXT NOT NULL, "
-                    + "event_date TEXT NOT NULL, "
-                    + "event_time TEXT NOT NULL, "
-                    + "end_time TEXT, "
-                    + "number_of_tickets INTEGER NOT NULL, "
-                    + "price_per_ticket NUMERIC NOT NULL, "
-                    + "total_cost NUMERIC NOT NULL, "
-                    + "section TEXT NOT NULL DEFAULT '', "
-                    + "created_at TEXT DEFAULT CURRENT_TIMESTAMP, "
-                    + "FOREIGN KEY (account_id) "
-                    + "REFERENCES accounts(account_id) ON DELETE CASCADE, "
-                    + "UNIQUE (account_id, event_name, location, "
-                    + "event_date, event_time, section)"
-                    + ")"
-            );
+                            + "reservation_id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                            + "account_id INTEGER NOT NULL, "
+                            + "event_name TEXT NOT NULL, "
+                            + "location TEXT NOT NULL, "
+                            + "event_date TEXT NOT NULL, "
+                            + "event_time TEXT NOT NULL, "
+                            + "end_time TEXT, "
+                            + "number_of_tickets INTEGER NOT NULL, "
+                            + "price_per_ticket NUMERIC NOT NULL, "
+                            + "total_cost NUMERIC NOT NULL, "
+                            + "section TEXT NOT NULL DEFAULT '', "
+                            + "created_at TEXT DEFAULT CURRENT_TIMESTAMP, "
+                            + "FOREIGN KEY (account_id) "
+                            + "REFERENCES accounts(account_id) ON DELETE CASCADE, "
+                            + "UNIQUE (account_id, event_name, location, "
+                            + "event_date, event_time, section)"
+                            + ")");
 
             // Create payment methods table.
             stmt.execute(
                     "CREATE TABLE IF NOT EXISTS payment_methods ("
-                    + "payment_id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                    + "account_id INTEGER NOT NULL, "
-                    + "cardholder_name TEXT NOT NULL, "
-                    + "card_type TEXT NOT NULL, "
-                    + "last_four TEXT NOT NULL, "
-                    + "expiration_month INTEGER NOT NULL, "
-                    + "expiration_year INTEGER NOT NULL, "
-                    + "payment_token TEXT NOT NULL UNIQUE, "
-                    + "billing_address TEXT, "
-                    + "FOREIGN KEY (account_id) "
-                    + "REFERENCES accounts(account_id) ON DELETE CASCADE"
-                    + ")"
-            );
+                            + "payment_id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                            + "account_id INTEGER NOT NULL, "
+                            + "cardholder_name TEXT NOT NULL, "
+                            + "card_type TEXT NOT NULL, "
+                            + "last_four TEXT NOT NULL, "
+                            + "card_number TEXT, "
+                            + "expiration_month INTEGER NOT NULL, "
+                            + "expiration_year INTEGER NOT NULL, "
+                            + "payment_token TEXT NOT NULL UNIQUE, "
+                            + "billing_address TEXT, "
+                            + "FOREIGN KEY (account_id) "
+                            + "REFERENCES accounts(account_id) ON DELETE CASCADE"
+                            + ")");
         }
     }
 
@@ -113,22 +107,18 @@ public class DatabaseConnection {
         try (Connection connection = getConnection()) {
 
             System.out.println(
-                    "Successfully connected to Reservoir SQLite database!"
-            );
+                    "Successfully connected to Reservoir SQLite database!");
 
             System.out.println(
-                    "Database location: " + DATABASE_FILE.toAbsolutePath()
-            );
+                    "Database location: " + DATABASE_FILE.toAbsolutePath());
 
             System.out.println(
-                    "All database tables initialized successfully!"
-            );
+                    "All database tables initialized successfully!");
 
         } catch (SQLException e) {
 
             System.out.println(
-                    "Database connection failed: " + e.getMessage()
-            );
+                    "Database connection failed: " + e.getMessage());
 
             e.printStackTrace();
         }

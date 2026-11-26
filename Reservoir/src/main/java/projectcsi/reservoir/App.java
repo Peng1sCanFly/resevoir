@@ -1,11 +1,13 @@
 package projectcsi.reservoir;
 
-import java.util.ArrayList;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.util.ArrayList;
+import java.util.UUID;
 
 import javafx.application.Application;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -21,991 +23,699 @@ import javafx.stage.Stage;
 
 public class App extends Application {
 
-    private Stage stage;
-    private Account currentAccount;
+        private Stage stage;
+        private Account currentAccount;
 
-    public Account getCurrentAccount() {
-        return currentAccount;
-    }
-
-    private ArrayList<Event> events =
-            new ArrayList<>();
-
-    private ArrayList<Reservation> reservations =
-            new ArrayList<>();
-
-    private ArrayList<Favorite> favorites =
-            new ArrayList<>();
-
-@Override
-public void start(Stage stage) {
-
-    this.stage = stage;
-
-    stage.setTitle("Reservoir");
-
-    // Automatically apply CSS to every new scene.
-    stage.sceneProperty().addListener(
-            (observable, oldScene, newScene) -> {
-
-                if (newScene != null) {
-
-                    applyStylesheet(newScene);
-                }
-            }
-    );
-
-    showWelcomeScreen();
-
-    stage.show();
-}
-    // =====================================================
-    // Stylesheet
-    // =====================================================
-
-public static void applyStylesheet(Scene scene) {
-
-        java.io.File cssFile = new java.io.File(
-                "src/main/java/projectcsi/reservoir/reservoir.css"
-        );
-
-        if (!cssFile.exists()) {
-                System.err.println(
-                        "Could not find reservoir.css at: "
-                        + cssFile.getAbsolutePath()
-                );
-                return;
+        public Account getCurrentAccount() {
+                return currentAccount;
         }
 
-        String stylesheet = cssFile.toURI().toString();
+        private ArrayList<Event> events = new ArrayList<>();
 
-        // Avoid adding the same stylesheet more than once.
-        if (!scene.getStylesheets().contains(stylesheet)) {
-                scene.getStylesheets().add(stylesheet);
+        private ArrayList<Reservation> reservations = new ArrayList<>();
+
+        private ArrayList<Favorite> favorites = new ArrayList<>();
+
+        private static App instance;
+
+        public static App getInstance() {
+                return instance;
         }
 
-        System.out.println(
-                "Stylesheet applied to scene: "
-                + scene.getRoot().getClass().getSimpleName()
-        );
+        @Override
+        public void start(Stage stage) {
+                instance = this;
+                this.stage = stage;
+
+                stage.setTitle("Reservoir");
+
+                // Automatically apply CSS to every new scene.
+                stage.sceneProperty().addListener(
+                                (observable, oldScene, newScene) -> {
+                                        if (newScene != null) {
+                                                applyStylesheet(newScene);
+                                        }
+                                });
+
+                showWelcomeScreen();
+                stage.show();
         }
+        // =====================================================
+        // Stylesheet
+        // =====================================================
 
-    // =====================================================
-    // HOME
-    // =====================================================
+        public static void applyStylesheet(Scene scene) {
 
-    private void showWelcomeScreen() {
-
-        Label title =
-                new Label("RESERVOIR");
-
-        title.setStyle(
-                "-fx-font-size: 36px;"
-                + "-fx-font-weight: bold;"
-        );
-
-        Label subtitle =
-                new Label(
-                        "All Your Plans. One Place."
-                );
-
-        Label description =
-                new Label(
-                        "Plan, reserve, and manage your events all in one place."
-                );
-
-        Button loginButton =
-                new Button("Login");
-
-        Button createAccountButton =
-                new Button("Create Account");
-
-        loginButton.setPrefSize(
-                200,
-                35
-        );
-
-        createAccountButton.setPrefSize(
-                200,
-                35
-        );
-
-        loginButton.setOnAction(
-                action ->
-                        showLoginScreen()
-        );
-
-        createAccountButton.setOnAction(
-                action ->
-                        showCreateAccountScreen()
-        );
-
-        VBox layout =
-                new VBox(
-                        15,
-                        title,
-                        subtitle,
-                        description,
-                        loginButton,
-                        createAccountButton
-                );
-
-        layout.setAlignment(
-                Pos.CENTER
-        );
-
-        layout.setPadding(
-                new Insets(40)
-        );
-
-        stage.setScene(
-                new Scene(
-                        layout,
-                        900,
-                        600
-                )
-        );
-    }
-
-    // =====================================================
-    // LOGIN
-    // =====================================================
-
-    private void showLoginScreen() {
-
-        Label title =
-                new Label("LOGIN");
-
-        title.setStyle(
-                "-fx-font-size: 30px;"
-                + "-fx-font-weight: bold;"
-        );
-
-        TextField emailField =
-                new TextField();
-
-        emailField.setPromptText(
-                "Email"
-        );
-
-        emailField.setMaxWidth(
-                300
-        );
-
-        PasswordField passwordField =
-                new PasswordField();
-
-        passwordField.setPromptText(
-                "Password"
-        );
-
-        passwordField.setMaxWidth(
-                300
-        );
-
-        Label messageLabel =
-                new Label();
-
-        Button loginButton =
-                new Button("Login");
-
-        Button backButton =
-                new Button("Back to Home");
-
-        loginButton.setPrefSize(
-                200,
-                35
-        );
-
-        backButton.setPrefSize(
-                200,
-                35
-        );
-
-        loginButton.setOnAction(action -> {
-
-            if (emailField
-                    .getText()
-                    .trim()
-                    .isEmpty()
-                    || passwordField
-                            .getText()
-                            .isEmpty()) {
-
-                messageLabel.setText(
-                        "Please enter your email and password."
-                );
-
-            } else {
                 try {
-                    Account account = AccountDAO.login(
-                            emailField.getText(), passwordField.getText());
-                    if (account == null) {
-                        messageLabel.setText("Invalid email or password.");
-                        passwordField.clear();
-                        return;
-                    }
-                    currentAccount = account;
-                    passwordField.clear();
-                    showDashboard();
-                } catch (SQLException | IllegalStateException e) {
-                    messageLabel.setText("Login unavailable. Please try again.");
+                        java.net.URL cssResource = App.class.getResource("/projectcsi/reservoir/reservoir.css");
+
+                        String stylesheet = cssResource.toExternalForm();
+
+                        // Apply stylesheet if it has not already been applied.
+                        if (!scene.getStylesheets().contains(stylesheet)) {
+                                scene.getStylesheets().add(stylesheet);
+                        }
+                } catch (Exception e) {
+                        System.err.println("Failed to load CSS:");
+                        e.printStackTrace();
+
                 }
-            }
-        });
+        }
 
-        backButton.setOnAction(
-                action ->
-                        showWelcomeScreen()
-        );
+        // =====================================================
+        // HOME
+        // =====================================================
 
-        VBox layout =
-                new VBox(
-                        12,
-                        title,
-                        emailField,
-                        passwordField,
-                        loginButton,
-                        messageLabel,
-                        backButton
-                );
+        private void showWelcomeScreen() {
 
-        layout.setAlignment(
-                Pos.CENTER
-        );
+                Label title = new Label("RESERVOIR");
+                title.getStyleClass().add("welcome-title");
 
-        layout.setPadding(
-                new Insets(40)
-        );
+                Label subtitle = new Label("All Your Plans. One Place.");
 
-        stage.setScene(
-                new Scene(
-                        layout,
-                        900,
-                        600
-                )
-        );
-    }
+                Label description = new Label("Plan, reserve, and manage your events all in one place.");
 
-    // =====================================================
-    // CREATE ACCOUNT
-    // =====================================================
+                Button loginButton = new Button("Login");
+                loginButton.getStyleClass().add("action-button");
 
-    private void showCreateAccountScreen() {
+                Button createAccountButton = new Button("Create Account");
+                createAccountButton.getStyleClass().add("action-button");
 
-        Label title =
-                new Label(
-                        "CREATE ACCOUNT"
-                );
+                loginButton.setOnAction(action -> showLoginScreen());
 
-        title.setStyle(
-                "-fx-font-size: 30px;"
-                + "-fx-font-weight: bold;"
-        );
+                createAccountButton.setOnAction(action -> showCreateAccountScreen());
 
-        TextField firstName =
-                new TextField();
-
-        firstName.setPromptText(
-                "First Name"
-        );
-
-        firstName.setMaxWidth(
-                300
-        );
-
-        TextField lastName =
-                new TextField();
-
-        lastName.setPromptText(
-                "Last Name"
-        );
-
-        lastName.setMaxWidth(
-                300
-        );
-
-        TextField email =
-                new TextField();
-
-        email.setPromptText(
-                "Email"
-        );
-
-        email.setMaxWidth(
-                300
-        );
-
-        PasswordField password =
-                new PasswordField();
-
-        password.setPromptText(
-                "Password"
-        );
-
-        password.setMaxWidth(
-                300
-        );
-
-        PasswordField confirmPassword =
-                new PasswordField();
-
-        confirmPassword.setPromptText(
-                "Confirm Password"
-        );
-
-        confirmPassword.setMaxWidth(
-                300
-        );
-
-        Label messageLabel =
-                new Label();
-
-        Button createButton =
-                new Button(
-                        "Create Account"
-                );
-
-        Button backButton =
-                new Button(
-                        "Back to Home"
-                );
-
-        createButton.setPrefSize(
-                200,
-                35
-        );
-
-        backButton.setPrefSize(
-                200,
-                35
-        );
-
-        createButton.setOnAction(action -> {
-
-            if (firstName
-                    .getText()
-                    .trim()
-                    .isEmpty()
-                    || lastName
-                            .getText()
-                            .trim()
-                            .isEmpty()
-                    || email
-                            .getText()
-                            .trim()
-                            .isEmpty()
-                    || password
-                            .getText()
-                            .isEmpty()
-                    || confirmPassword
-                            .getText()
-                            .isEmpty()) {
-
-                messageLabel.setText(
-                        "Please complete all fields."
-                );
-
-                return;
-            }
-
-            if (!password
-                    .getText()
-                    .equals(
-                            confirmPassword
-                                    .getText()
-                    )) {
-
-                messageLabel.setText(
-                        "Passwords do not match."
-                );
-
-                return;
-            }
-
-            if (!email.getText().trim().matches("[^\\s@]+@[^\\s@]+\\.[^\\s@]+")) {
-                messageLabel.setText("Please enter a valid email address.");
-                return;
-            }
-            if (password.getText().length() < 8) {
-                messageLabel.setText("Use a password of at least 8 characters.");
-                return;
-            }
-            try {
-                boolean created = AccountDAO.createAccount(
-                        firstName.getText(), lastName.getText(),
-                        email.getText(), password.getText());
-                if (created) {
-                    messageLabel.setText("Account created successfully! Return home to log in.");
-                    password.clear();
-                    confirmPassword.clear();
-                } else {
-                    messageLabel.setText("An account with this email already exists.");
-                }
-            } catch (SQLException | IllegalStateException e) {
-                messageLabel.setText("Account creation unavailable. Please try again.");
-            }
-        });
-
-        backButton.setOnAction(
-                action ->
-                        showWelcomeScreen()
-        );
-
-        VBox layout =
-                new VBox(
-                        10,
-                        title,
-                        firstName,
-                        lastName,
-                        email,
-                        password,
-                        confirmPassword,
-                        createButton,
-                        messageLabel,
-                        backButton
-                );
-
-        layout.setAlignment(
-                Pos.CENTER
-        );
-
-        layout.setPadding(
-                new Insets(30)
-        );
-
-        stage.setScene(
-                new Scene(
-                        layout,
-                        900,
-                        650
-                )
-        );
-    }
-
-
-    // =====================================================
-    // DASHBOARD
-    // =====================================================
-
-    private void showDashboard() {
-
-        Label title =
-                new Label("RESERVOIR");
-
-        title.setStyle(
-                "-fx-font-size: 34px;"
-                + "-fx-font-weight: bold;"
-        );
-
-        Label welcome =
-                new Label("Welcome, " + currentAccount.getFirstName() + "!");
-
-        Button eventsButton =
-                new Button("Join Local Events");
-
-        Button createEventButton =
-                new Button("Create Event");
-
-        Button reservationsButton =
-                new Button(
-                        "My Reservations"
-                );
-
-        Button myEventsButton =
-                new Button("My Events");
-
-        Button favoritesButton =
-                new Button("My Favorites");
-
-        Button logoutButton =
-                new Button("Logout");
-                
-        eventsButton.getStyleClass().add("dashboard-button");
-        createEventButton.getStyleClass().add("dashboard-button");
-        reservationsButton.getStyleClass().add("dashboard-button");
-        myEventsButton.getStyleClass().add("dashboard-button");
-        favoritesButton.getStyleClass().add("dashboard-button");
-        logoutButton.getStyleClass().add("dashboard-button");
-        //====================
-        // Calendar
-        //====================
-        // Calendar
-java.time.YearMonth currentMonth = java.time.YearMonth.now();
-java.time.LocalDate today = java.time.LocalDate.now();
-
-GridPane calendar = new GridPane();
-calendar.setHgap(10);
-calendar.setVgap(10);
-calendar.setAlignment(Pos.CENTER);
-
-// Month heading
-Label monthLabel = new Label(
-        currentMonth.getMonth().toString() + " " + currentMonth.getYear()
-);
-
-monthLabel.setStyle(
-        "-fx-font-size: 20px;" +
-        "-fx-font-weight: bold;" +
-        "-fx-text-fill: #12284B;"
-);
-
-// Weekday headings
-String[] weekdays = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-
-for (int col = 0; col < 7; col++) {
-    Label weekday = new Label(weekdays[col]);
-    weekday.setAlignment(Pos.CENTER);
-    weekday.setStyle(
-            "-fx-text-fill: #12284B;" +
-            "-fx-font-weight: bold;"
-    );
-    calendar.add(weekday, col, 0);
-}
-
-// Find the first weekday of the month
-int startDay = currentMonth.atDay(1).getDayOfWeek().getValue() % 7;
-
-// Add the numbered days
-for (int day = 1; day <= currentMonth.lengthOfMonth(); day++) {
-
-    java.time.LocalDate date = currentMonth.atDay(day);
-
-    Label dateLabel = new Label(String.valueOf(day));
-
-    dateLabel.setMinSize(30, 30);
-    dateLabel.setAlignment(Pos.CENTER);
-
-    // Individual square borders and yellow highlight for today
-    dateLabel.setStyle(
-            "-fx-border-color: #12284B;" +
-            "-fx-border-width: 1px;" +
-            "-fx-text-fill: #12284B;" +
-            (date.equals(today)
-                    ? "-fx-background-color: yellow; -fx-font-weight: bold;"
-                    : "")
-    );
-
-    int index = startDay + day - 1;
-
-    calendar.add(
-            dateLabel,
-            index % 7,
-            (index / 7) + 1
-    );
-}
-
-// Calendar layout
-VBox calendarBox = new VBox(
-        10,
-        monthLabel,
-        calendar
-);
-
-calendarBox.setAlignment(Pos.CENTER);
-
-        // EVENTS
-        eventsButton.setOnAction(
-                action ->
-                        showEventsScreen()
-        );
-
-        // CREATE EVENT
-        createEventButton.setOnAction(action -> {
-
-            CreateEventScreen screen =
-                    new CreateEventScreen(
-                            stage,
-                            events,
-                            this::showDashboard
-                    );
-
-            screen.show();
-        });
-
-        // MY RESERVATIONS
-        reservationsButton.setOnAction(action -> {
-
-            MyReservationsScreen screen =
-                    new MyReservationsScreen(
-                            stage,
-                            reservations,
-                            this::showDashboard
-                    );
-
-            screen.setAccount(currentAccount);
-            screen.show();
-        });
-
-        // MY EVENTS
-        myEventsButton.setOnAction(action -> {
-
-            MyEventsScreen screen =
-                    new MyEventsScreen(
-                            stage,
-                            events,
-                            this::showDashboard
-                    );
-
-            screen.show();
-        });
-
-        // MY FAVORITES
-        favoritesButton.setOnAction(action -> {
-
-            MyFavoritesScreen screen =
-                    new MyFavoritesScreen(
-                            stage,
-                            favorites,
-                            this::showDashboard
-                    );
-
-            screen.show();
-        });
-
-        // LOGOUT
-        logoutButton.setOnAction(action -> {
-            currentAccount = null;
-            // Clear temporary account data until database storage is integrated.
-            reservations.clear();
-            favorites.clear();
-            events.clear();
-            showWelcomeScreen();
-        });
-
-
-       //ACCOUNT BUTTON
-
-        //Load AccountImage.png from the mediaContent folder
-        Image accountImage = new Image(
-        new java.io.File("mediaContent/AccountImage.png").toURI().toString(),
-                40,
-                40,
-                true,
-                true
-        );
-        //Display the image
-        ImageView accountImageView = new ImageView(accountImage);
-        accountImageView.setFitWidth(40);
-        accountImageView.setFitHeight(40);
-        accountImageView.setPreserveRatio(false);
-
-        //Make the content the correct size for the border
-        Circle clip = new Circle(20, 20, 20);
-        accountImageView.setClip(clip);
-
-        //Create the button
-        Button accountButton = new Button();
-        accountButton.setGraphic(accountImageView);
-        accountButton.setPrefSize(44, 44);
-        accountButton.setMinSize(44, 44);
-        accountButton.setMaxSize(44, 44);
-
-
-        //Add new style to the button
-        accountButton.setStyle(
-        "-fx-background-color: transparent;" +
-        "-fx-padding: 2;" +
-        "-fx-cursor: hand;" +
-        "-fx-border-color: black;" +
-        "-fx-border-width: 1;" +
-        "-fx-border-radius: 22;" +
-        "-fx-background-radius: 22;"
-        );
-
-        //Navigate to the account page when clicked
-        accountButton.setOnAction(event -> {showAccountPage();});
-        //======================Main Menu===============================
-        //Create buttons list
-        VBox sublayout =
-                new VBox(
-                        12,
-                        eventsButton,
-                        createEventButton,
-                        reservationsButton,
-                        myEventsButton,
-                        favoritesButton,
-                        logoutButton
-                        
-                );        
-
-        //Add the calender formating
-        VBox calenderlayout = new VBox(
-                12,
-                calendarBox
-        );
-
-
-        //Layout for the buttons and calendar (The Content)
-        HBox contentLayout = new HBox(
-                50,
-                sublayout,
-                calenderlayout
-        );
-        contentLayout.setAlignment(Pos.CENTER);
-        HBox headerLayout = new HBox(
-                50,
-                accountButton,
-                title
-                
-        );
-        headerLayout.setAlignment(Pos.CENTER);
-        // Combine the sublayout and calendar layout into a single HBox (Aligning Left and Right) also adds in the "Title" and "Welcome" labels to the top of the screen
-        VBox layout = new VBox(
-                50,
-                headerLayout,
-                welcome,
-                contentLayout
-        );
-        layout.setAlignment(Pos.CENTER);
-
-        layout.setPadding(
-                new Insets(30)
-        );
-
-//================================================================
-
-
-        //create scene
-        stage.setScene(
-                new Scene(
-                        layout,
-                        900,
-                        650
-                )
-        );
-    }
-    // =====================================================
-    // ACCOUNT PAGE
-    // =====================================================
-        private void showAccountPage() {
-                Label title =
-                        new Label("ACCOUNT");
-
-                title.setStyle(
-                        "-fx-font-size: 32px;"
-                        + "-fx-font-weight: bold;"
-                );
-
-                Button backButton =
-                        new Button("Back to Dashboard");
-
-                backButton.setPrefSize(
-                        200,
-                        35
-                );
-
-                backButton.setOnAction(
-                        action ->
-                                showDashboard()
-                );
-
-                VBox layout =
-                        new VBox(
-                                15,
+                VBox layout = new VBox(
                                 title,
-                                new Label("Name: " + currentAccount.getFullName()),
-                                new Label("Email: " + currentAccount.getEmail()),
-                                new Label("Phone: " + (currentAccount.getPhoneNumber() == null
-                                        ? "Not provided" : currentAccount.getPhoneNumber())),
-                                new Label("Billing address: " + (currentAccount.getBillingAddress() == null
-                                        ? "Not provided" : currentAccount.getBillingAddress())),
-                                backButton
-                        );
+                                subtitle,
+                                description,
+                                loginButton,
+                                createAccountButton);
+                layout.getStyleClass().add("welcome-layout");
 
-                layout.setAlignment(Pos.CENTER);
+                stage.setScene(new Scene(layout, 900, 600));
+        }
 
-                layout.setPadding(new Insets(40));
+        // =====================================================
+        // LOGIN
+        // =====================================================
 
+        private void showLoginScreen() {
+                // Create the login form
+                Label title = new Label("LOGIN");
+                title.getStyleClass().add("page-title");
 
-                stage.setScene(
-                        new Scene(
-                                layout,
-                                900,
-                                650
-                        )
+                TextField emailField = new TextField();
+                // Set prompt text and style class for the email field
+                emailField.setPromptText("Email");
+                emailField.getStyleClass().add("form-field");
+
+                PasswordField passwordField = new PasswordField();
+                // Set prompt text and style class for the password field
+                passwordField.setPromptText("Password");
+                passwordField.getStyleClass().add("form-field");
+                // Create a label for displaying messages to the user
+                Label messageLabel = new Label();
+                messageLabel.getStyleClass().add("status-message");
+                // Create the login and back buttons
+                Button loginButton = new Button("Login");
+                loginButton.getStyleClass().add("action-button");
+                // Create the back button to return to the home screen
+                Button backButton = new Button("Back to Home");
+                backButton.getStyleClass().add("navigation-button");
+
+                loginButton.setOnAction(action -> {
+
+                        if (emailField.getText().trim().isEmpty() || passwordField.getText().isEmpty()) {
+
+                                messageLabel.setText("Please enter your email and password.");
+
+                        } else {
+                                try {
+                                        Account account = AccountDAO.login(emailField.getText(),
+                                                        passwordField.getText());
+                                        if (account == null) {
+                                                messageLabel.setText("Invalid email or password.");
+                                                passwordField.clear();
+                                                return;
+                                        }
+                                        currentAccount = account;
+                                        passwordField.clear();
+                                        showDashboard();
+                                } catch (SQLException | IllegalStateException e) {
+                                        messageLabel.setText("Login unavailable. Please try again.");
+                                }
+                        }
+                });
+
+                backButton.setOnAction(action -> showWelcomeScreen());
+
+                VBox layout = new VBox(
+                                title,
+                                emailField,
+                                passwordField,
+                                loginButton,
+                                messageLabel,
+                                backButton);
+                layout.getStyleClass().add("login-layout");
+
+                stage.setScene(new Scene(layout, 900, 600));
+        }
+
+        // =====================================================
+        // CREATE ACCOUNT
+        // =====================================================
+
+        private void showCreateAccountScreen() {
+
+                Label title = new Label("CREATE ACCOUNT");
+                title.getStyleClass().add("page-title");
+
+                TextField firstName = new TextField();
+
+                firstName.setPromptText("First Name");
+                firstName.getStyleClass().add("form-field");
+
+                TextField lastName = new TextField();
+
+                lastName.setPromptText("Last Name");
+                lastName.getStyleClass().add("form-field");
+
+                TextField email = new TextField();
+
+                email.setPromptText("Email");
+                email.getStyleClass().add("form-field");
+
+                PasswordField password = new PasswordField();
+
+                password.setPromptText("Password");
+                password.getStyleClass().add("form-field");
+
+                PasswordField confirmPassword = new PasswordField();
+
+                confirmPassword.setPromptText("Confirm Password");
+                confirmPassword.getStyleClass().add("form-field");
+
+                Label messageLabel = new Label();
+                messageLabel.getStyleClass().add("status-message");
+
+                Button createButton = new Button("Create Account");
+                createButton.getStyleClass().add("action-button");
+
+                Button backButton = new Button("Back to Home");
+                backButton.getStyleClass().add("navigation-button");
+
+                createButton.setOnAction(action -> {
+                        if (firstName.getText().trim().isEmpty()
+                                        || lastName.getText().trim().isEmpty()
+                                        || email.getText().trim().isEmpty()
+                                        || password.getText().isEmpty()
+                                        || confirmPassword.getText().isEmpty()) {
+
+                                messageLabel.setText("Please complete all fields.");
+                                return;
+                        }
+
+                        if (!password.getText().equals(confirmPassword.getText())) {
+                                messageLabel.setText("Passwords do not match.");
+                                return;
+                        }
+
+                        if (!email.getText().trim().matches("[^\\s@]+@[^\\s@]+\\.[^\\s@]+")) {
+                                messageLabel.setText("Please enter a valid email address.");
+                                return;
+                        }
+                        if (password.getText().length() < 5) {
+                                messageLabel.setText("Use a password of at least 5 characters.");
+                                return;
+                        }
+                        try {
+                                boolean created = AccountDAO.createAccount(
+                                                firstName.getText(), lastName.getText(),
+                                                email.getText(), password.getText());
+                                if (created) {
+                                        messageLabel.setText("Account created successfully! Return home to log in.");
+                                        password.clear();
+                                        confirmPassword.clear();
+                                } else {
+                                        messageLabel.setText("An account with this email already exists.");
+                                }
+                        } catch (SQLException | IllegalStateException e) {
+                                messageLabel.setText(
+                                                "Account creation unavailable. Please try again." + e.getMessage());
+                        }
+                });
+
+                backButton.setOnAction(action -> showWelcomeScreen());
+
+                VBox layout = new VBox(
+                                title,
+                                firstName,
+                                lastName,
+                                email,
+                                password,
+                                confirmPassword,
+                                createButton,
+                                messageLabel,
+                                backButton);
+                layout.getStyleClass().add("create-account-layout");
+
+                stage.setScene(new Scene(layout, 900, 650));
+        }
+
+        // =====================================================
+        // DASHBOARD
+        // =====================================================
+
+        private void showDashboard() {
+
+                Label title = new Label("RESERVOIR");
+                title.getStyleClass().add("dashboard-title");
+
+                Label welcome = new Label("Welcome, " + currentAccount.getFirstName() + "!");
+
+                Button eventsButton = new Button("Join Local Events");
+                eventsButton.getStyleClass().add("dashboard-button");
+
+                Button createEventButton = new Button("Create Event");
+                createEventButton.getStyleClass().add("dashboard-button");
+
+                Button reservationsButton = new Button("My Reservations");
+                reservationsButton.getStyleClass().add("dashboard-button");
+
+                Button myEventsButton = new Button("My Events");
+                myEventsButton.getStyleClass().add("dashboard-button");
+
+                Button favoritesButton = new Button("My Favorites");
+                favoritesButton.getStyleClass().add("dashboard-button");
+
+                Button logoutButton = new Button("Logout");
+                logoutButton.getStyleClass().add("dashboard-button");
+
+                // ====================
+                // Calendar
+                // ====================
+                java.time.YearMonth currentMonth = java.time.YearMonth.now();
+                java.time.LocalDate today = java.time.LocalDate.now();
+
+                GridPane calendar = new GridPane();
+                calendar.getStyleClass().add("calendar-grid");
+
+                // Month heading
+                Label monthLabel = new Label(
+                                currentMonth.getMonth().toString() + " " + currentMonth.getYear());
+                monthLabel.getStyleClass().add("calendar-month");
+
+                // Weekday headings
+                String[] weekdays = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+
+                for (int col = 0; col < 7; col++) {
+                        Label weekday = new Label(weekdays[col]);
+                        weekday.getStyleClass().add("calendar-weekday");
+                        calendar.add(weekday, col, 0);
+                }
+
+                // Find the first weekday of the month
+                int startDay = currentMonth.atDay(1).getDayOfWeek().getValue() % 7;
+
+                // Add the numbered days
+                for (int day = 1; day <= currentMonth.lengthOfMonth(); day++) {
+
+                        java.time.LocalDate date = currentMonth.atDay(day);
+
+                        Label dateLabel = new Label(String.valueOf(day));
+
+                        dateLabel.getStyleClass().add("calendar-day");
+                        if (date.equals(today)) {
+                                dateLabel.getStyleClass().add("today");
+                        }
+
+                        int index = startDay + day - 1;
+
+                        calendar.add(
+                                        dateLabel,
+                                        index % 7,
+                                        (index / 7) + 1);
+                }
+
+                // Calendar layout
+                VBox calendarBox = new VBox(monthLabel, calendar);
+                calendarBox.getStyleClass().add("calendar-container");
+
+                // EVENTS
+                eventsButton.setOnAction(action -> showEventsScreen());
+
+                // CREATE EVENT
+                createEventButton.setOnAction(action -> {
+                        CreateEventScreen screen = new CreateEventScreen(
+                                        stage,
+                                        events,
+                                        this::showDashboard);
+
+                        screen.show();
+                });
+
+                // MY RESERVATIONS
+                reservationsButton.setOnAction(action -> {
+
+                        MyReservationsScreen screen = new MyReservationsScreen(
+                                        stage,
+                                        reservations,
+                                        this::showDashboard);
+
+                        screen.setAccount(currentAccount);
+                        screen.show();
+                });
+
+                // MY EVENTS
+                myEventsButton.setOnAction(action -> {
+
+                        MyEventsScreen screen = new MyEventsScreen(
+                                        stage,
+                                        events,
+                                        this::showDashboard);
+
+                        screen.show();
+                });
+
+                // MY FAVORITES
+                favoritesButton.setOnAction(action -> {
+
+                        MyFavoritesScreen screen = new MyFavoritesScreen(
+                                        stage,
+                                        favorites,
+                                        this::showDashboard);
+
+                        screen.show();
+                });
+
+                // LOGOUT
+                logoutButton.setOnAction(action -> {
+                        currentAccount = null;
+                        // Clear temporary account data until database storage is integrated.
+                        reservations.clear();
+                        favorites.clear();
+                        events.clear();
+                        showWelcomeScreen();
+                });
+
+                // ======================ACCOUNT BUTTON===============================
+                java.io.File imageFile = new java.io.File("Reservoir/mediaContent/AccountImage.png");
+
+                Image accountImage = new Image(
+                                imageFile.toURI().toString(),
+                                40, 40, true, true);
+
+                ImageView accountImageView = new ImageView(accountImage);
+
+                accountImageView.setClip(new Circle(20, 20, 20));
+
+                // Create button
+                Button accountButton = new Button();
+                accountButton.getStyleClass().add("account-button");
+                accountButton.setGraphic(accountImageView);
+
+                accountButton.setOnAction(event -> showAccountPage());
+                // ======================Main Menu===============================
+                // Create buttons list
+                VBox sublayout = new VBox(
+                                eventsButton,
+                                createEventButton,
+                                reservationsButton,
+                                myEventsButton,
+                                favoritesButton,
+                                logoutButton
+
                 );
-                
-        }    
+                sublayout.getStyleClass().add("dashboard-menu");
 
-    // =====================================================
-    // EVENTS
-    // =====================================================
+                // Add the calender formating
+                VBox calenderlayout = new VBox(calendarBox);
+                calenderlayout.getStyleClass().add("calendar-layout");
 
-    private void showEventsScreen() {
+                // Layout for the buttons and calendar (The Content)
+                HBox contentLayout = new HBox(sublayout, calenderlayout);
 
-        Label title =
-                new Label("EVENTS");
+                contentLayout.getStyleClass().add("dashboard-content");
+                HBox headerLayout = new HBox(accountButton, title);
+                headerLayout.getStyleClass().add("dashboard-header");
+                // Combine the sublayout and calendar layout into a single HBox (Aligning Left
+                // and Right) also adds in the "Title" and "Welcome" labels to the top of the
+                // screen
+                VBox layout = new VBox(headerLayout, welcome, contentLayout);
+                layout.getStyleClass().add("dashboard-layout");
 
-        title.setStyle(
-                "-fx-font-size: 32px;"
-                + "-fx-font-weight: bold;"
-        );
+                // ================================================================
 
-        Label subtitle =
-                new Label(
-                        "Choose an event category."
-                );
+                // create scene
+                stage.setScene(new Scene(layout, 900, 650));
+        }
 
-        Button restaurants =
-                new Button(
-                        "Restaurants"
-                );
+        // =====================================================
+        // ACCOUNT PAGE
+        // =====================================================
+        private void showAccountPage() {
 
-        Button concerts =
-                new Button(
-                        "Concerts"
-                );
+                Label title = new Label("ACCOUNT");
+                title.getStyleClass().add("page-title");
 
-        Button sports =
-                new Button(
-                        "Sports"
-                );
+                // Account Information
+                Label nameLabel = new Label(
+                                "Name: " + currentAccount.getFullName());
 
-        Button movies =
-                new Button(
-                        "Movies"
-                );
+                Label emailLabel = new Label(
+                                "Email: " + currentAccount.getEmail());
 
-        Button community =
-                new Button(
-                        "Community Events"
-                );
+                Label phoneLabel = new Label(
+                                "Phone: " + (currentAccount.getPhoneNumber() == null
+                                                ? "Not provided"
+                                                : currentAccount.getPhoneNumber()));
 
-        Button back =
-                new Button(
-                        "Back to Dashboard"
-                );
+                Label addressLabel = new Label(
+                                "Billing address: " + (currentAccount.getBillingAddress() == null
+                                                ? "Not provided"
+                                                : currentAccount.getBillingAddress()));
 
-        restaurants.setPrefSize(
-                300,
-                45
-        );
+                // =====================================================
+                // SAVE PAYMENT CARD
+                // =====================================================
 
-        concerts.setPrefSize(
-                300,
-                45
-        );
+                Label savedCardLabel = new Label("No saved card.");
 
-        sports.setPrefSize(
-                300,
-                45
-        );
+                TextField cardNumberField = new TextField();
+                cardNumberField.setPromptText("1234 5678 9012 3456");
+                cardNumberField.getStyleClass().add("form-field");
 
-        movies.setPrefSize(
-                300,
-                45
-        );
+                TextField expiryField = new TextField();
+                expiryField.setPromptText("MM/YY");
+                expiryField.getStyleClass().add("form-field");
 
-        community.setPrefSize(
-                300,
-                45
-        );
+                Label paymentMessage = new Label();
+                paymentMessage.getStyleClass().add("status-message");
 
-        back.setPrefSize(
-                300,
-                40
-        );
+                Button saveCardButton = new Button("Save Payment Card");
+                saveCardButton.getStyleClass().add("action-button");
 
-        restaurants.setOnAction(
-                action ->
-                        showCategoryEvents(
-                                "Restaurants"
-                        )
-        );
+                saveCardButton.setOnAction(event -> {
 
-        concerts.setOnAction(
-                action ->
-                        showCategoryEvents(
-                                "Concerts"
-                        )
-        );
+                        String cardNumber = cardNumberField.getText().replaceAll("\\s", "");
+                        String expiry = expiryField.getText().trim();
 
-        sports.setOnAction(
-                action ->
-                        showCategoryEvents(
-                                "Sports"
-                        )
-        );
+                        if (!cardNumber.matches("\\d{13,19}")) {
+                                paymentMessage.setText("Invalid card number.");
+                                return;
+                        }
 
-        movies.setOnAction(
-                action ->
-                        showCategoryEvents(
-                                "Movies"
-                        )
-        );
+                        if (!expiry.matches("(0[1-9]|1[0-2])/\\d{2}")) {
+                                paymentMessage.setText("Enter expiration as MM/YY.");
+                                return;
+                        }
 
-        community.setOnAction(
-                action ->
-                        showCategoryEvents(
-                                "Community Events"
-                        )
-        );
+                        try {
+                                int expirationMonth = Integer.parseInt(expiry.substring(0, 2));
 
-        back.setOnAction(
-                action ->
-                        showDashboard()
-        );
+                                int expirationYear = 2000 + Integer.parseInt(expiry.substring(3, 5));
 
-        VBox layout =
-                new VBox(
-                        15,
-                        title,
-                        subtitle,
-                        restaurants,
-                        concerts,
-                        sports,
-                        movies,
-                        community,
-                        back
-                );
+                                String lastFour = cardNumber.substring(cardNumber.length() - 4);
 
-        layout.setAlignment(
-                Pos.CENTER
-        );
+                                String sql = "INSERT INTO payment_methods ("
+                                                + "account_id, cardholder_name, card_type, last_four, "
+                                                + "expiration_month, expiration_year, payment_token, "
+                                                + "billing_address, card_number"
+                                                + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        layout.setPadding(
-                new Insets(40)
-        );
+                                try (Connection connection = DatabaseConnection.getConnection();
+                                                PreparedStatement statement = connection.prepareStatement(sql)) {
 
+                                        statement.setInt(1, currentAccount.getAccountId());
+                                        statement.setString(2, currentAccount.getFullName());
+                                        statement.setString(3, "Demo");
+                                        statement.setString(4, lastFour);
+                                        statement.setInt(5, expirationMonth);
+                                        statement.setInt(6, expirationYear);
+                                        statement.setString(7, UUID.randomUUID().toString());
+                                        statement.setString(8, currentAccount.getBillingAddress());
+                                        statement.setString(9, cardNumber);
 
-        stage.setScene(
-                new Scene(
-                        layout,
-                        900,
-                        650
-                )
-        );
-    }
+                                        statement.executeUpdate();
+                                }
 
-    // =====================================================
-    // CATEGORY EVENTS
-    // =====================================================
+                                savedCardLabel.setText(
+                                                "Saved Card: **** **** **** "
+                                                                + lastFour + " | Expires: " + expiry);
 
-    private void showCategoryEvents(
-            String category) {
+                                paymentMessage.setText("Payment card saved successfully.");
 
-        CategoryEventsScreen screen =
-                new CategoryEventsScreen(
-                        stage,
-                        events,
-                        reservations,
-                        favorites,
-                        category,
-                        this::showEventsScreen
-                );
+                                cardNumberField.clear();
 
-        screen.setAccount(currentAccount);
-        screen.show();
-    }
+                        } catch (Exception e) {
+                                e.printStackTrace();
+                                paymentMessage.setText("Unable to save payment card.");
+                        }
+                });
+                // =====================================================
+                // DISPLAY SAVED CARD INFORMATION IF AVAILABLE
+                // =====================================================
 
-    // =====================================================
-    // MAIN
-    // =====================================================
+                try {
+                        String sql = "SELECT last_four, expiration_month, expiration_year "
+                                        + "FROM payment_methods "
+                                        + "WHERE account_id = ? "
+                                        + "ORDER BY payment_id DESC LIMIT 1";
 
-    public static void main(
-            String[] args) {
+                        try (Connection connection = DatabaseConnection.getConnection();
+                                        PreparedStatement statement = connection.prepareStatement(sql)) {
 
-        launch();
-    }
+                                statement.setInt(1, currentAccount.getAccountId());
+
+                                try (ResultSet resultSet = statement.executeQuery()) {
+
+                                        if (resultSet.next()) {
+                                                String lastFour = resultSet.getString("last_four");
+                                                int expMonth = resultSet.getInt("expiration_month");
+                                                int expYear = resultSet.getInt("expiration_year");
+
+                                                savedCardLabel.setText(
+                                                                "Saved Card: **** **** **** "
+                                                                                + lastFour + " | Expires: "
+                                                                                + String.format("%02d", expMonth)
+                                                                                + "/" + (expYear % 100));
+                                        }
+                                }
+                        }
+                } catch (SQLException e) {
+                        e.printStackTrace();
+                        paymentMessage.setText("Unable to retrieve saved card information.");
+                }
+                // =====================================================
+                // NAVIGATION
+                // =====================================================
+
+                Button backButton = new Button("Back to Dashboard");
+                backButton.getStyleClass().add("navigation-button");
+
+                backButton.setOnAction(action -> showDashboard());
+
+                // =====================================================
+                // PAGE LAYOUT
+                // =====================================================
+
+                VBox layout = new VBox(
+                                title,
+                                nameLabel,
+                                emailLabel,
+                                phoneLabel,
+                                addressLabel,
+                                savedCardLabel,
+                                cardNumberField,
+                                expiryField,
+                                saveCardButton,
+                                paymentMessage,
+                                backButton);
+                layout.getStyleClass().add("account-layout");
+
+                stage.setScene(new Scene(layout, 900, 650));
+        }
+
+        // =====================================================
+        // EVENTS
+        // =====================================================
+
+        private void showEventsScreen() {
+
+                Label title = new Label("EVENTS");
+                title.getStyleClass().add("page-title");
+
+                Label subtitle = new Label("Choose an event category.");
+
+                Button restaurants = new Button("Restaurants");
+                restaurants.getStyleClass().add("event-button");
+
+                Button concerts = new Button("Concerts");
+                concerts.getStyleClass().add("event-button");
+
+                Button sports = new Button("Sports");
+                sports.getStyleClass().add("event-button");
+
+                Button movies = new Button("Movies");
+                movies.getStyleClass().add("event-button");
+
+                Button community = new Button("Community Events");
+                community.getStyleClass().add("event-button");
+
+                Button back = new Button("Back to Dashboard");
+                back.getStyleClass().add("event-button");
+
+                restaurants.setOnAction(action -> showCategoryEvents("Restaurants"));
+
+                concerts.setOnAction(action -> showCategoryEvents("Concerts"));
+
+                sports.setOnAction(action -> showCategoryEvents("Sports"));
+
+                movies.setOnAction(action -> showCategoryEvents("Movies"));
+
+                community.setOnAction(action -> showCategoryEvents("Community Events"));
+
+                back.setOnAction(action -> showDashboard());
+
+                VBox layout = new VBox(
+                                title,
+                                subtitle,
+                                restaurants,
+                                concerts,
+                                sports,
+                                movies,
+                                community,
+                                back);
+                layout.getStyleClass().add("events-layout");
+
+                stage.setScene(new Scene(layout, 900, 650));
+        }
+
+        // =====================================================
+        // CATEGORY EVENTS
+        // =====================================================
+
+        private void showCategoryEvents(String category) {
+
+                CategoryEventsScreen screen = new CategoryEventsScreen(
+                                stage,
+                                events,
+                                reservations,
+                                favorites,
+                                category,
+                                this::showEventsScreen);
+
+                screen.setAccount(currentAccount);
+                screen.show();
+        }
+
+        // =====================================================
+        // MAIN
+        // =====================================================
+
+        public static void main(
+                        String[] args) {
+                launch();
+        }
 }

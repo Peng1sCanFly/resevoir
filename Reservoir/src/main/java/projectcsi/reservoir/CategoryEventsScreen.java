@@ -24,1431 +24,1225 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-
 public class CategoryEventsScreen {
 
-    private Stage stage;
-    private Account account;
-    private String savedEndTime = "";
+        private Stage stage;
+        private Account account;
+        private String savedEndTime = "";
 
-    public void setAccount(Account account) {
-        this.account = account;
-    }
-    private ArrayList<Event> events;
-    private ArrayList<Reservation> reservations;
-    private ArrayList<Favorite> favorites;
-    private String category;
-    private Runnable backToEvents;
-
-    // Remember form information
-    private String savedType = "";
-    private String savedEventName = "";
-    private String savedLocation = "";
-    private String savedDate = "";
-    private String savedTime = "";
-    private String savedQuantity = "";
-    private String savedCost = "";
-
-    // Selected seating section
-    private String selectedSection = "";
-
-    public CategoryEventsScreen(
-            Stage stage,
-            ArrayList<Event> events,
-            ArrayList<Reservation> reservations,
-            ArrayList<Favorite> favorites,
-            String category,
-            Runnable backToEvents) {
-
-        this.stage = stage;
-        this.events = events;
-        this.reservations = reservations;
-        this.favorites = favorites;
-        this.category = category;
-        this.backToEvents = backToEvents;
-    }
-
-    public void show() {
-
-        // =====================================================
-        // TITLE
-        // =====================================================
-
-        Label titleLabel =
-                new Label(category.toUpperCase());
-
-        titleLabel.setStyle(
-                "-fx-font-size: 30px;"
-                + "-fx-font-weight: bold;"
-        );
-
-        Label subtitleLabel =
-                new Label(
-                        "Enter what you are looking for."
-                );
-
-        // =====================================================
-        // TYPE
-        // =====================================================
-
-        Label typeLabel =
-                new Label("Type");
-
-        ComboBox<String> typeBox =
-                new ComboBox<>();
-
-        typeBox.setPrefWidth(350);
-
-        // =====================================================
-        // EVENT NAME
-        // =====================================================
-
-        Label nameLabel =
-                new Label("Event Name");
-
-        TextField nameField =
-                new TextField();
-
-        nameField.setMaxWidth(350);
-
-        // =====================================================
-        // LOCATION
-        // =====================================================
-        Label locationLabel =
-                new Label("Location");
-
-        TextField locationField =
-                new TextField();
-
-        locationField.setPrefWidth(290);
-        locationField.setPromptText("Enter an address");
-
-        // Activate Photon autocomplete.
-        PhotonAddressAutocomplete autocomplete =
-                new PhotonAddressAutocomplete(locationField);
-
-        // Button that opens the map.
-        Button selectLocationButton =
-                new Button("Select");
-
-        selectLocationButton.setPrefSize(60, 35);
-        
-        
-        // =====================================================
-        // CATEGORY OPTIONS
-        // =====================================================
-
-        if (category.equals("Restaurants")) {
-
-            typeLabel.setText("Restaurant Type");
-
-            typeBox.getItems().addAll(
-                    "American & Comfort",
-                    "Italian & Pizzeria",
-                    "Mexican & Latin American",
-                    "Asian",
-                    "Mediterranean & Greek"
-            );
-
-            typeBox.setPromptText(
-                    "Choose restaurant type"
-            );
-
-            nameLabel.setText(
-                    "Restaurant Name"
-            );
-
-            nameField.setPromptText(
-                    "Type restaurant name"
-            );
-
-            locationField.setPromptText(
-                    "Type restaurant location"
-            );
-
-        } else if (category.equals("Concerts")) {
-
-            typeLabel.setText("Music Genre");
-
-            typeBox.getItems().addAll(
-                    "Rock & Pop",
-                    "Electronic",
-                    "Hip-Hop",
-                    "R&B",
-                    "Country",
-                    "Indie"
-            );
-
-            typeBox.setPromptText(
-                    "Choose music genre"
-            );
-
-            nameLabel.setText(
-                    "Concert / Artist"
-            );
-
-            nameField.setPromptText(
-                    "Type concert or artist"
-            );
-
-            locationField.setPromptText(
-                    "Type arena or concert location"
-            );
-
-        } else if (category.equals("Sports")) {
-
-            typeLabel.setText("Sport");
-
-            typeBox.getItems().addAll(
-                    "Football",
-                    "FIFA / Soccer",
-                    "Basketball",
-                    "Baseball",
-                    "Hockey"
-            );
-
-            typeBox.setPromptText(
-                    "Choose sport"
-            );
-
-            nameLabel.setText(
-                    "Sporting Event"
-            );
-
-            nameField.setPromptText(
-                    "Type sporting event"
-            );
-
-            locationField.setPromptText(
-                    "Type stadium or arena"
-            );
-
-        } else if (category.equals("Movies")) {
-
-            typeLabel.setText("Movie Genre");
-
-            typeBox.getItems().addAll(
-                    "Comedy",
-                    "Drama / Sad",
-                    "Romance",
-                    "Adventure",
-                    "Sci-Fi",
-                    "Documentary"
-            );
-
-            typeBox.setPromptText(
-                    "Choose movie genre"
-            );
-
-            nameLabel.setText("Movie");
-
-            nameField.setPromptText(
-                    "Type movie name"
-            );
-
-            locationField.setPromptText(
-                    "Type movie theater"
-            );
-
-        } else if (category.equals(
-                "Community Events")) {
-
-            typeLabel.setText(
-                    "Community Event Type"
-            );
-
-            typeBox.getItems().addAll(
-                    "Festival",
-                    "Parade",
-                    "Fair / Expo",
-                    "Charity / Fundraiser",
-                    "Cultural Event",
-                    "Community Gathering",
-                    "Other"
-            );
-
-            typeBox.setPromptText(
-                    "Choose event type"
-            );
-
-            nameLabel.setText(
-                    "Community Event"
-            );
-
-            nameField.setPromptText(
-                    "Type community event"
-            );
-
-            locationField.setPromptText(
-                    "Type or select event location"
-            );
+        public void setAccount(Account account) {
+                this.account = account;
         }
 
-        // =====================================================
-        // DATE
-        // =====================================================
+        private ArrayList<Event> events;
+        private ArrayList<Reservation> reservations;
+        private ArrayList<Favorite> favorites;
+        private String category;
+        private Runnable backToEvents;
 
-        Label dateLabel =
-                new Label("Date");
+        // Remember form information
+        private String savedType = "";
+        private String savedEventName = "";
+        private String savedLocation = "";
+        private String savedDate = "";
+        private String savedTime = "";
+        private String savedQuantity = "";
+        private String savedCost = "";
 
-        DatePicker datePicker =
-                new DatePicker();
+        // Selected seating section
+        private String selectedSection = "";
 
-        datePicker.setPromptText(
-                "Choose a date"
-        );
+        public CategoryEventsScreen(
+                        Stage stage,
+                        ArrayList<Event> events,
+                        ArrayList<Reservation> reservations,
+                        ArrayList<Favorite> favorites,
+                        String category,
+                        Runnable backToEvents) {
 
-        datePicker.setPrefWidth(350);
-
-        // =====================================================
-        // TIME
-        // =====================================================
-
-        Label timeLabel =
-                new Label("Start Time");
-
-        TextField timeField =
-                new TextField();
-
-        timeField.setPromptText(
-                "Example: 7:00 PM"
-        );
-
-        timeField.setMaxWidth(350);
-        Label endTimeLabel = new Label("End Time (same day)");
-        TextField endTimeField = new TextField();
-        endTimeField.setPromptText("Example: 9:00 PM");
-        endTimeField.setMaxWidth(350);
-        endTimeField.setText(savedEndTime);
-
-        // =====================================================
-        // PEOPLE / TICKETS
-        // =====================================================
-
-        Label quantityLabel =
-                new Label();
-
-        TextField quantityField =
-                new TextField();
-
-        quantityField.setMaxWidth(350);
-
-        if (category.equals("Restaurants")) {
-
-            quantityLabel.setText(
-                    "How Many People"
-            );
-
-            quantityField.setPromptText(
-                    "Example: 4"
-            );
-
-        } else {
-
-            quantityLabel.setText(
-                    "How Many Tickets"
-            );
-
-            quantityField.setPromptText(
-                    "Example: 2"
-            );
+                this.stage = stage;
+                this.events = events;
+                this.reservations = reservations;
+                this.favorites = favorites;
+                this.category = category;
+                this.backToEvents = backToEvents;
         }
 
-        // =====================================================
-        // COST
-        // =====================================================
+        public void show() {
 
-        Label costLabel =
-                new Label(
-                        "Cost Per Person / Ticket"
-                );
+                // =====================================================
+                // TITLE
+                // =====================================================
 
-        TextField costField =
-                new TextField();
+                Label titleLabel = new Label(category.toUpperCase());
 
-        costField.setPromptText(
-                "Example: 25.00"
-        );
+                titleLabel.setStyle(
+                                "-fx-font-size: 30px;"
+                                                + "-fx-font-weight: bold;");
 
-        costField.setMaxWidth(350);
+                Label subtitleLabel = new Label(
+                                "Enter what you are looking for.");
 
-        // =====================================================
-        // RESTORE SAVED INFORMATION
-        // =====================================================
+                // =====================================================
+                // TYPE
+                // =====================================================
 
-        if (!savedType.isEmpty()) {
-            typeBox.setValue(savedType);
-        }
+                Label typeLabel = new Label("Type");
 
-        nameField.setText(savedEventName);
-        locationField.setText(savedLocation);
-        timeField.setText(savedTime);
-        quantityField.setText(savedQuantity);
-        costField.setText(savedCost);
+                ComboBox<String> typeBox = new ComboBox<>();
 
-        if (!savedDate.isEmpty()) {
+                typeBox.setPrefWidth(350);
 
-            datePicker.setValue(
-                    java.time.LocalDate.parse(
-                            savedDate
-                    )
-            );
-        }
+                // =====================================================
+                // EVENT NAME
+                // =====================================================
 
-        // =====================================================
-        // SEATING
-        // =====================================================
+                Label nameLabel = new Label("Event Name");
 
-        Label seatingLabel =
-                new Label();
+                TextField nameField = new TextField();
 
-        if (selectedSection.isEmpty()) {
+                nameField.setMaxWidth(350);
 
-            seatingLabel.setText(
-                    "Selected Section: None"
-            );
+                // =====================================================
+                // LOCATION
+                // =====================================================
+                Label locationLabel = new Label("Location");
 
-        } else {
+                TextField locationField = new TextField();
 
-            seatingLabel.setText(
-                    "Selected Section: "
-                    + selectedSection
-            );
-        }
+                locationField.setPrefWidth(290);
+                locationField.setPromptText("Enter an address");
 
-        seatingLabel.setStyle(
-                "-fx-font-size: 16px;"
-                + "-fx-font-weight: bold;"
-        );
+                // Activate Photon autocomplete.
+                PhotonAddressAutocomplete autocomplete = new PhotonAddressAutocomplete(locationField);
 
-        Button seatingButton =
-                new Button(
-                        "Choose Seating Section"
-                );
+                // Button that opens the map.
+                Button selectLocationButton = new Button("Select");
 
-        seatingButton.setPrefSize(
-                250,
-                40
-        );
+                selectLocationButton.setPrefSize(60, 35);
 
-        seatingButton.setVisible(false);
-        seatingButton.setManaged(false);
+                // =====================================================
+                // CATEGORY OPTIONS
+                // =====================================================
 
-        seatingLabel.setVisible(false);
-        seatingLabel.setManaged(false);
-
-        // =====================================================
-        // TYPE CHANGE
-        // =====================================================
-
-        typeBox.setOnAction(action -> {
+                if (category.equals("Restaurants")) {
 
-            String selectedType =
-                    typeBox.getValue();
-
-            boolean showSeating = false;
-
-            if (category.equals("Concerts")) {
-                showSeating = true;
-            }
-
-            if (category.equals("Sports")
-                    && selectedType != null
-                    && selectedType.equals("Football")) {
-
-                showSeating = true;
-            }
-
-            seatingButton.setVisible(showSeating);
-            seatingButton.setManaged(showSeating);
-
-            seatingLabel.setVisible(showSeating);
-            seatingLabel.setManaged(showSeating);
-
-            if (category.equals("Sports")
-                    && selectedType != null
-                    && !selectedType.equals("Football")) {
-
-                selectedSection = "";
-
-                seatingLabel.setText(
-                        "Selected Section: None"
-                );
-            }
-        });
-
-        // =====================================================
-        // RESTORE SEATING VISIBILITY
-        // =====================================================
-
-        if (!savedType.isEmpty()) {
-
-            boolean showSeating = false;
-
-            if (category.equals("Concerts")) {
-                showSeating = true;
-            }
-
-            if (category.equals("Sports")
-                    && savedType.equals("Football")) {
-
-                showSeating = true;
-            }
-
-            seatingButton.setVisible(showSeating);
-            seatingButton.setManaged(showSeating);
-
-            seatingLabel.setVisible(showSeating);
-            seatingLabel.setManaged(showSeating);
-        }
-
-        // =====================================================
-        // TOTAL
-        // =====================================================
-
-        Label totalLabel =
-                new Label("Total: $0.00");
-
-        totalLabel.setStyle(
-                "-fx-font-size: 18px;"
-                + "-fx-font-weight: bold;"
-        );
-
-        Label messageLabel =
-                new Label();
-        // =====================================================
-        // SELECT LOCATION FROM MAP
-        // =====================================================
-
-        selectLocationButton.setOnAction(action -> {
-        LocationPicker picker =
-                new LocationPicker(
-                        stage,
-                        address -> {
-                                // Fill the location field
-                                locationField.setText(address);
-                                // Save the selected address
-                                savedLocation = address;
-                                messageLabel.setText(
-                                        "Location selected successfully!"
-                                );
-                        }
-                );
-        picker.show();
-        });
-        // =====================================================
-        // BUTTONS
-        // =====================================================
-
-
-        Button paymentButton =
-                new Button(
-                        "Continue to Payment"
-                );
+                        typeLabel.setText("Restaurant Type");
 
-        paymentButton.setPrefSize(
-                250,
-                40
-        );
+                        typeBox.getItems().addAll(
+                                        "American & Comfort",
+                                        "Italian & Pizzeria",
+                                        "Mexican & Latin American",
+                                        "Asian",
+                                        "Mediterranean & Greek");
 
-        Button favoriteButton =
-                new Button(
-                        "Add to Favorites"
-                );
+                        typeBox.setPromptText(
+                                        "Choose restaurant type");
 
-        favoriteButton.setPrefSize(
-                250,
-                40
-        );
+                        nameLabel.setText(
+                                        "Restaurant Name");
 
-        Button backButton =
-                new Button(
-                        "Back to Events"
-                );
+                        nameField.setPromptText(
+                                        "Type restaurant name");
 
-        backButton.setPrefSize(
-                250,
-                40
-        );
+                        locationField.setPromptText(
+                                        "Type restaurant location");
 
-        // =====================================================
-        // CHOOSE SEATING
-        // =====================================================
+                } else if (category.equals("Concerts")) {
 
-        seatingButton.setOnAction(action -> {
+                        typeLabel.setText("Music Genre");
 
-            String selectedType =
-                    typeBox.getValue();
+                        typeBox.getItems().addAll(
+                                        "Rock & Pop",
+                                        "Electronic",
+                                        "Hip-Hop",
+                                        "R&B",
+                                        "Country",
+                                        "Indie");
 
-            if (selectedType == null) {
+                        typeBox.setPromptText(
+                                        "Choose music genre");
 
-                messageLabel.setText(
-                        "Please choose a type first."
-                );
+                        nameLabel.setText(
+                                        "Concert / Artist");
 
-                return;
-            }
+                        nameField.setPromptText(
+                                        "Type concert or artist");
 
-            savedEndTime = endTimeField.getText().trim();
-            // Save everything before leaving this screen
-            savedType = selectedType;
+                        locationField.setPromptText(
+                                        "Type arena or concert location");
 
-            savedEventName =
-                    nameField
-                            .getText()
-                            .trim();
+                } else if (category.equals("Sports")) {
 
-            savedLocation =
-                    locationField
-                            .getText()
-                            .trim();
+                        typeLabel.setText("Sport");
 
-            if (datePicker.getValue() != null) {
+                        typeBox.getItems().addAll(
+                                        "Football",
+                                        "FIFA / Soccer",
+                                        "Basketball",
+                                        "Baseball",
+                                        "Hockey");
 
-                savedDate =
-                        datePicker
-                                .getValue()
-                                .toString();
-            }
+                        typeBox.setPromptText(
+                                        "Choose sport");
 
-            savedTime =
-                    timeField
-                            .getText()
-                            .trim();
+                        nameLabel.setText(
+                                        "Sporting Event");
 
-            savedQuantity =
-                    quantityField
-                            .getText()
-                            .trim();
+                        nameField.setPromptText(
+                                        "Type sporting event");
 
-            savedCost =
-                    costField
-                            .getText()
-                            .trim();
+                        locationField.setPromptText(
+                                        "Type stadium or arena");
 
-            String seatingType;
+                } else if (category.equals("Movies")) {
 
-            if (category.equals("Concerts")) {
+                        typeLabel.setText("Movie Genre");
 
-                seatingType = "Concert";
+                        typeBox.getItems().addAll(
+                                        "Comedy",
+                                        "Drama / Sad",
+                                        "Romance",
+                                        "Adventure",
+                                        "Sci-Fi",
+                                        "Documentary");
 
-            } else {
+                        typeBox.setPromptText(
+                                        "Choose movie genre");
 
-                seatingType = "Football";
-            }
+                        nameLabel.setText("Movie");
 
-            SeatingSelectionScreen screen =
-                    new SeatingSelectionScreen(
-                            stage,
-                            seatingType,
+                        nameField.setPromptText(
+                                        "Type movie name");
 
-                            section -> {
+                        locationField.setPromptText(
+                                        "Type movie theater");
 
-                                selectedSection =
-                                        section;
+                } else if (category.equals(
+                                "Community Events")) {
 
-                                show();
-                            },
+                        typeLabel.setText(
+                                        "Community Event Type");
 
-                            this::show
-                    );
+                        typeBox.getItems().addAll(
+                                        "Festival",
+                                        "Parade",
+                                        "Fair / Expo",
+                                        "Charity / Fundraiser",
+                                        "Cultural Event",
+                                        "Community Gathering",
+                                        "Other");
 
-            screen.show();
-        });
+                        typeBox.setPromptText(
+                                        "Choose event type");
 
-        // =====================================================
-        // CALCULATE TOTAL
-        // =====================================================
+                        nameLabel.setText(
+                                        "Community Event");
 
-        quantityField.textProperty().addListener((observable, oldValue, newValue) -> {
+                        nameField.setPromptText(
+                                        "Type community event");
 
-    try {
-
-        int quantity =
-                Integer.parseInt(
-                        quantityField
-                                .getText()
-                                .trim()
-                );
-
-        double cost =
-                Double.parseDouble(
-                        costField
-                                .getText()
-                                .trim()
-                );
-
-        if (quantity <= 0) {
-
-            messageLabel.setText(
-                    "Please enter at least 1 person/ticket."
-            );
-
-            return;
-        }
-
-        if (cost < 0) {
-
-            messageLabel.setText(
-                    "Cost cannot be negative."
-            );
-
-            return;
-        }
-
-        double total =
-                quantity * cost;
-
-        totalLabel.setText(
-                String.format(
-                        "Total: $%.2f",
-                        total
-                )
-        );
-
-        messageLabel.setText("");
-
-    } catch (NumberFormatException e) {
-
-        messageLabel.setText(
-                "Please enter valid numbers."
-        );
-    }
-});
-
-costField.textProperty().addListener((observable, oldValue, newValue) -> {
-
-    try {
-
-        int quantity =
-                Integer.parseInt(
-                        quantityField
-                                .getText()
-                                .trim()
-                );
-
-        double cost =
-                Double.parseDouble(
-                        costField
-                                .getText()
-                                .trim()
-                );
-
-        if (quantity <= 0) {
-
-            messageLabel.setText(
-                    "Please enter at least 1 person/ticket."
-            );
-
-            return;
-        }
-
-        if (cost < 0) {
-
-            messageLabel.setText(
-                    "Cost cannot be negative."
-            );
-
-            return;
-        }
-
-        double total =
-                quantity * cost;
-
-        totalLabel.setText(
-                String.format(
-                        "Total: $%.2f",
-                        total
-                )
-        );
-
-        messageLabel.setText("");
-
-    } catch (NumberFormatException e) {
-
-        messageLabel.setText(
-                "Please enter valid numbers."
-        );
-    }
-});
-
-        // =====================================================
-        // CONTINUE TO PAYMENT
-        // =====================================================
-
-        paymentButton.setOnAction(action -> {
-
-            if (account == null) {
-                messageLabel.setText("Please log in before booking.");
-                return;
-            }
-            String selectedType =
-                    typeBox.getValue();
-
-            String eventName =
-                    nameField
-                            .getText()
-                            .trim();
-
-            String location =
-                    locationField
-                            .getText()
-                            .trim();
-
-            String time =
-                    timeField
-                            .getText()
-                            .trim();
-
-            String quantityText =
-                    quantityField
-                            .getText()
-                            .trim();
-
-            String costText =
-                    costField
-                            .getText()
-                            .trim();
-
-            // =================================================
-            // CHECK REQUIRED FIELDS
-            // =================================================
-
-            if (selectedType == null
-                    || eventName.isEmpty()
-                    || location.isEmpty()
-                    || datePicker.getValue() == null
-                    || time.isEmpty()
-                    || quantityText.isEmpty()
-                    || costText.isEmpty()) {
-
-                messageLabel.setText(
-                        "Please complete all fields."
-                );
-
-                return;
-            }
-
-            // =================================================
-            // CONCERT SEATING REQUIRED
-            // =================================================
-
-            if (category.equals("Concerts")
-                    && selectedSection.isEmpty()) {
-
-                messageLabel.setText(
-                        "Please choose a seating section."
-                );
-
-                return;
-            }
-
-            // =================================================
-            // FOOTBALL SEATING REQUIRED
-            // =================================================
-
-            if (category.equals("Sports")
-                    && selectedType.equals("Football")
-                    && selectedSection.isEmpty()) {
-
-                messageLabel.setText(
-                        "Please choose a seating section."
-                );
-
-                return;
-            }
-
-            try {
-
-                int quantity =
-                        Integer.parseInt(
-                                quantityText
-                        );
-
-                double cost =
-                        Double.parseDouble(
-                                costText
-                        );
-
-                if (quantity <= 0) {
-
-                    messageLabel.setText(
-                            "Please enter at least 1 person/ticket."
-                    );
-
-                    return;
+                        locationField.setPromptText(
+                                        "Type or select event location");
                 }
 
-                if (cost < 0) {
+                // =====================================================
+                // DATE
+                // =====================================================
 
-                    messageLabel.setText(
-                            "Cost cannot be negative."
-                    );
+                Label dateLabel = new Label("Date");
 
-                    return;
-                }
+                DatePicker datePicker = new DatePicker();
 
-                String date =
-                        datePicker
-                                .getValue()
-                                .toString();
+                datePicker.setPromptText(
+                                "Choose a date");
 
-                // =================================================
-                // DATABASE BOOKING VALIDATION
-                // =================================================
-                final LocalDate bookingDate = datePicker.getValue();
-                final LocalTime startTime;
-                final LocalTime endTime;
-                try {
-                    startTime = parseBookingTime(time);
-                    endTime = parseBookingTime(endTimeField.getText());
-                } catch (DateTimeParseException ex) {
-                    messageLabel.setText("Enter valid times, e.g. 7:00 PM and 9:00 PM.");
-                    return;
-                }
-                if (!endTime.isAfter(startTime)) {
-                    messageLabel.setText("End time must be after start time on the same day.");
-                    return;
-                }
-                if (!Double.isFinite(cost) || !Double.isFinite(quantity * cost)) {
-                    messageLabel.setText("Enter a valid cost.");
-                    return;
-                }
-                savedEndTime = endTimeField.getText().trim();
-                final int accountId = account.getAccountId();
+                datePicker.setPrefWidth(350);
 
-                double total =
-                        quantity * cost;
+                // =====================================================
+                // TIME
+                // =====================================================
 
-                // Show total before leaving
-                totalLabel.setText(
-                        String.format(
-                                "Total: $%.2f",
-                                total
-                        )
-                );
+                Label timeLabel = new Label("Start Time");
 
-                // =================================================
-                // SAVE FORM INFORMATION
-                // =================================================
+                TextField timeField = new TextField();
 
-                savedType =
-                        selectedType;
+                timeField.setPromptText(
+                                "Example: 7:00 PM");
 
-                savedEventName =
-                        eventName;
+                timeField.setMaxWidth(350);
+                Label endTimeLabel = new Label("End Time (same day)");
+                TextField endTimeField = new TextField();
+                endTimeField.setPromptText("Example: 9:00 PM");
+                endTimeField.setMaxWidth(350);
+                endTimeField.setText(savedEndTime);
 
-                savedLocation =
-                        location;
+                // =====================================================
+                // PEOPLE / TICKETS
+                // =====================================================
 
-                savedDate =
-                        date;
+                Label quantityLabel = new Label();
 
-                savedTime =
-                        time;
+                TextField quantityField = new TextField();
 
-                savedQuantity =
-                        quantityText;
+                quantityField.setMaxWidth(350);
 
-                savedCost =
-                        costText;
+                if (category.equals("Restaurants")) {
 
-                // =================================================
-                // CREATE RESERVATION OBJECT
-                // BUT DO NOT ADD IT YET
-                // =================================================
+                        quantityLabel.setText(
+                                        "How Many People");
 
-                Reservation pendingReservation;
-
-                if (!selectedSection.isEmpty()) {
-
-                    pendingReservation =
-                            new Reservation(
-                                    eventName,
-                                    location,
-                                    date,
-                                    time,
-                                    quantity,
-                                    cost,
-                                    selectedSection
-                            );
+                        quantityField.setPromptText(
+                                        "Example: 4");
 
                 } else {
 
-                    pendingReservation =
-                            new Reservation(
-                                    eventName,
-                                    location,
-                                    date,
-                                    time,
-                                    quantity,
-                                    cost
-                            );
+                        quantityLabel.setText(
+                                        "How Many Tickets");
+
+                        quantityField.setPromptText(
+                                        "Example: 2");
                 }
 
-                // =================================================
-                // OPEN PAYMENT SCREEN
-                // =================================================
+                // =====================================================
+                // COST
+                // =====================================================
 
-                PaymentScreen paymentScreen =
-                        new PaymentScreen(
-                                stage,
-                                eventName,
-                                total,
+                Label costLabel = new Label(
+                                "Cost Per Person / Ticket");
 
-                                // PAYMENT SUCCESS
-                                () -> {
+                TextField costField = new TextField();
 
-                                    try {
-                                        System.out.println("Reservoir: attempting database reservation for account " + accountId);
-                                        boolean saved = ReservationDAO.saveReservation(
-                                                accountId, pendingReservation,
-                                                bookingDate, startTime, endTime);
-                                        if (!saved) {
-                                            showBookingError("Duplicate or overlapping reservation. No booking was saved.");
-                                            return;
-                                        }
-                                    } catch (SQLException | IllegalArgumentException ex) {
-                                        ex.printStackTrace();
-                                        showBookingError("Could not save reservation. See NetBeans Output for details.");
+                costField.setPromptText(
+                                "Example: 25.00");
+
+                costField.setMaxWidth(350);
+
+                // =====================================================
+                // RESTORE SAVED INFORMATION
+                // =====================================================
+
+                if (!savedType.isEmpty()) {
+                        typeBox.setValue(savedType);
+                }
+
+                nameField.setText(savedEventName);
+                locationField.setText(savedLocation);
+                timeField.setText(savedTime);
+                quantityField.setText(savedQuantity);
+                costField.setText(savedCost);
+
+                if (!savedDate.isEmpty()) {
+
+                        datePicker.setValue(
+                                        java.time.LocalDate.parse(
+                                                        savedDate));
+                }
+
+                // =====================================================
+                // SEATING
+                // =====================================================
+
+                Label seatingLabel = new Label();
+
+                if (selectedSection.isEmpty()) {
+
+                        seatingLabel.setText(
+                                        "Selected Section: None");
+
+                } else {
+
+                        seatingLabel.setText(
+                                        "Selected Section: "
+                                                        + selectedSection);
+                }
+
+                seatingLabel.setStyle(
+                                "-fx-font-size: 16px;"
+                                                + "-fx-font-weight: bold;");
+
+                Button seatingButton = new Button(
+                                "Choose Seating Section");
+
+                seatingButton.setPrefSize(
+                                250,
+                                40);
+
+                seatingButton.setVisible(false);
+                seatingButton.setManaged(false);
+
+                seatingLabel.setVisible(false);
+                seatingLabel.setManaged(false);
+
+                // =====================================================
+                // TYPE CHANGE
+                // =====================================================
+
+                typeBox.setOnAction(action -> {
+
+                        String selectedType = typeBox.getValue();
+
+                        boolean showSeating = false;
+
+                        if (category.equals("Concerts")) {
+                                showSeating = true;
+                        }
+
+                        if (category.equals("Sports")
+                                        && selectedType != null
+                                        && selectedType.equals("Football")) {
+
+                                showSeating = true;
+                        }
+
+                        seatingButton.setVisible(showSeating);
+                        seatingButton.setManaged(showSeating);
+
+                        seatingLabel.setVisible(showSeating);
+                        seatingLabel.setManaged(showSeating);
+
+                        if (category.equals("Sports")
+                                        && selectedType != null
+                                        && !selectedType.equals("Football")) {
+
+                                selectedSection = "";
+
+                                seatingLabel.setText(
+                                                "Selected Section: None");
+                        }
+                });
+
+                // =====================================================
+                // RESTORE SEATING VISIBILITY
+                // =====================================================
+
+                if (!savedType.isEmpty()) {
+
+                        boolean showSeating = false;
+
+                        if (category.equals("Concerts")) {
+                                showSeating = true;
+                        }
+
+                        if (category.equals("Sports")
+                                        && savedType.equals("Football")) {
+
+                                showSeating = true;
+                        }
+
+                        seatingButton.setVisible(showSeating);
+                        seatingButton.setManaged(showSeating);
+
+                        seatingLabel.setVisible(showSeating);
+                        seatingLabel.setManaged(showSeating);
+                }
+
+                // =====================================================
+                // TOTAL
+                // =====================================================
+
+                Label totalLabel = new Label("Total: $0.00");
+
+                totalLabel.setStyle(
+                                "-fx-font-size: 18px;"
+                                                + "-fx-font-weight: bold;");
+
+                Label messageLabel = new Label();
+                // =====================================================
+                // SELECT LOCATION FROM MAP
+                // =====================================================
+
+                selectLocationButton.setOnAction(action -> {
+                        LocationPicker picker = new LocationPicker(
+                                        stage,
+                                        address -> {
+                                                // Fill the location field
+                                                locationField.setText(address);
+                                                // Save the selected address
+                                                savedLocation = address;
+                                                messageLabel.setText(
+                                                                "Location selected successfully!");
+                                        });
+                        picker.show();
+                });
+                // =====================================================
+                // BUTTONS
+                // =====================================================
+
+                Button paymentButton = new Button(
+                                "Continue to Payment");
+
+                paymentButton.setPrefSize(
+                                250,
+                                40);
+
+                Button favoriteButton = new Button(
+                                "Add to Favorites");
+
+                favoriteButton.setPrefSize(
+                                250,
+                                40);
+
+                Button backButton = new Button(
+                                "Back to Events");
+
+                backButton.setPrefSize(
+                                250,
+                                40);
+
+                // =====================================================
+                // CHOOSE SEATING
+                // =====================================================
+
+                seatingButton.setOnAction(action -> {
+
+                        String selectedType = typeBox.getValue();
+
+                        if (selectedType == null) {
+
+                                messageLabel.setText(
+                                                "Please choose a type first.");
+
+                                return;
+                        }
+
+                        savedEndTime = endTimeField.getText().trim();
+                        // Save everything before leaving this screen
+                        savedType = selectedType;
+
+                        savedEventName = nameField
+                                        .getText()
+                                        .trim();
+
+                        savedLocation = locationField
+                                        .getText()
+                                        .trim();
+
+                        if (datePicker.getValue() != null) {
+
+                                savedDate = datePicker
+                                                .getValue()
+                                                .toString();
+                        }
+
+                        savedTime = timeField
+                                        .getText()
+                                        .trim();
+
+                        savedQuantity = quantityField
+                                        .getText()
+                                        .trim();
+
+                        savedCost = costField
+                                        .getText()
+                                        .trim();
+
+                        String seatingType;
+
+                        if (category.equals("Concerts")) {
+
+                                seatingType = "Concert";
+
+                        } else {
+
+                                seatingType = "Football";
+                        }
+
+                        SeatingSelectionScreen screen = new SeatingSelectionScreen(
+                                        stage,
+                                        seatingType,
+
+                                        section -> {
+
+                                                selectedSection = section;
+
+                                                show();
+                                        },
+
+                                        this::show);
+
+                        screen.show();
+                });
+
+                // =====================================================
+                // CALCULATE TOTAL
+                // =====================================================
+
+                quantityField.textProperty().addListener((observable, oldValue, newValue) -> {
+
+                        try {
+
+                                int quantity = Integer.parseInt(
+                                                quantityField
+                                                                .getText()
+                                                                .trim());
+
+                                double cost = Double.parseDouble(
+                                                costField
+                                                                .getText()
+                                                                .trim());
+
+                                if (quantity <= 0) {
+
+                                        messageLabel.setText(
+                                                        "Please enter at least 1 person/ticket.");
+
                                         return;
-                                    }
-                                    try {
-                                        ArrayList<Reservation> stored = ReservationDAO.getReservations(accountId);
-                                        reservations.clear();
-                                        reservations.addAll(stored);
-                                        System.out.println("Reservoir: database save committed; account reservation count = " + stored.size());
-                                    } catch (SQLException ex) {
-                                        // Booking was already committed; do not attempt it again.
-                                        ex.printStackTrace();
-                                        System.out.println("Reservoir: database save committed, but refresh failed.");
-                                        reservations.clear();
-                                    }
-                                    showPaymentSuccessScreen(pendingReservation);
-                                },
+                                }
 
-                                // BACK TO RESERVATION
-                                this::show
-                        );
+                                if (cost < 0) {
 
-                paymentScreen.show();
+                                        messageLabel.setText(
+                                                        "Cost cannot be negative.");
 
-            } catch (NumberFormatException e) {
+                                        return;
+                                }
 
-                messageLabel.setText(
-                        "Please enter valid numbers."
-                );
-            }
-        });
+                                double total = quantity * cost;
 
-        // =====================================================
-        // ADD TO FAVORITES
-        // =====================================================
+                                totalLabel.setText(
+                                                String.format(
+                                                                "Total: $%.2f",
+                                                                total));
 
-        favoriteButton.setOnAction(action -> {
+                                messageLabel.setText("");
 
-            String eventName =
-                    nameField
-                            .getText()
-                            .trim();
+                        } catch (NumberFormatException e) {
 
-            String location =
-                    locationField
-                            .getText()
-                            .trim();
+                                messageLabel.setText(
+                                                "Please enter valid numbers.");
+                        }
+                });
 
-            String time =
-                    timeField
-                            .getText()
-                            .trim();
+                costField.textProperty().addListener((observable, oldValue, newValue) -> {
 
-            String costText =
-                    costField
-                            .getText()
-                            .trim();
+                        try {
 
-            if (typeBox.getValue() == null
-                    || eventName.isEmpty()
-                    || location.isEmpty()
-                    || datePicker.getValue() == null
-                    || time.isEmpty()
-                    || costText.isEmpty()) {
+                                int quantity = Integer.parseInt(
+                                                quantityField
+                                                                .getText()
+                                                                .trim());
 
-                messageLabel.setText(
-                        "Complete the event information before adding to favorites."
-                );
+                                double cost = Double.parseDouble(
+                                                costField
+                                                                .getText()
+                                                                .trim());
 
-                return;
-            }
+                                if (quantity <= 0) {
 
-            try {
+                                        messageLabel.setText(
+                                                        "Please enter at least 1 person/ticket.");
 
-                double cost =
-                        Double.parseDouble(
-                                costText
-                        );
+                                        return;
+                                }
 
-                if (cost < 0) {
+                                if (cost < 0) {
 
-                    messageLabel.setText(
-                            "Cost cannot be negative."
-                    );
+                                        messageLabel.setText(
+                                                        "Cost cannot be negative.");
 
-                    return;
+                                        return;
+                                }
+
+                                double total = quantity * cost;
+
+                                totalLabel.setText(
+                                                String.format(
+                                                                "Total: $%.2f",
+                                                                total));
+
+                                messageLabel.setText("");
+
+                        } catch (NumberFormatException e) {
+
+                                messageLabel.setText(
+                                                "Please enter valid numbers.");
+                        }
+                });
+
+                // =====================================================
+                // CONTINUE TO PAYMENT
+                // =====================================================
+
+                paymentButton.setOnAction(action -> {
+
+                        if (account == null) {
+                                messageLabel.setText("Please log in before booking.");
+                                return;
+                        }
+                        String selectedType = typeBox.getValue();
+
+                        String eventName = nameField
+                                        .getText()
+                                        .trim();
+
+                        String location = locationField
+                                        .getText()
+                                        .trim();
+
+                        String time = timeField
+                                        .getText()
+                                        .trim();
+
+                        String quantityText = quantityField
+                                        .getText()
+                                        .trim();
+
+                        String costText = costField
+                                        .getText()
+                                        .trim();
+
+                        // =================================================
+                        // CHECK REQUIRED FIELDS
+                        // =================================================
+
+                        if (selectedType == null
+                                        || eventName.isEmpty()
+                                        || location.isEmpty()
+                                        || datePicker.getValue() == null
+                                        || time.isEmpty()
+                                        || quantityText.isEmpty()
+                                        || costText.isEmpty()) {
+
+                                messageLabel.setText(
+                                                "Please complete all fields.");
+
+                                return;
+                        }
+
+                        // =================================================
+                        // CONCERT SEATING REQUIRED
+                        // =================================================
+
+                        if (category.equals("Concerts")
+                                        && selectedSection.isEmpty()) {
+
+                                messageLabel.setText(
+                                                "Please choose a seating section.");
+
+                                return;
+                        }
+
+                        // =================================================
+                        // FOOTBALL SEATING REQUIRED
+                        // =================================================
+
+                        if (category.equals("Sports")
+                                        && selectedType.equals("Football")
+                                        && selectedSection.isEmpty()) {
+
+                                messageLabel.setText(
+                                                "Please choose a seating section.");
+
+                                return;
+                        }
+
+                        try {
+
+                                int quantity = Integer.parseInt(
+                                                quantityText);
+
+                                double cost = Double.parseDouble(
+                                                costText);
+
+                                if (quantity <= 0) {
+
+                                        messageLabel.setText(
+                                                        "Please enter at least 1 person/ticket.");
+
+                                        return;
+                                }
+
+                                if (cost < 0) {
+
+                                        messageLabel.setText(
+                                                        "Cost cannot be negative.");
+
+                                        return;
+                                }
+
+                                String date = datePicker
+                                                .getValue()
+                                                .toString();
+
+                                // =================================================
+                                // DATABASE BOOKING VALIDATION
+                                // =================================================
+                                final LocalDate bookingDate = datePicker.getValue();
+                                final LocalTime startTime;
+                                final LocalTime endTime;
+                                try {
+                                        startTime = parseBookingTime(time);
+                                        endTime = parseBookingTime(endTimeField.getText());
+                                } catch (DateTimeParseException ex) {
+                                        messageLabel.setText("Enter valid times, e.g. 7:00 PM and 9:00 PM.");
+                                        return;
+                                }
+                                if (!endTime.isAfter(startTime)) {
+                                        messageLabel.setText("End time must be after start time on the same day.");
+                                        return;
+                                }
+                                if (!Double.isFinite(cost) || !Double.isFinite(quantity * cost)) {
+                                        messageLabel.setText("Enter a valid cost.");
+                                        return;
+                                }
+                                savedEndTime = endTimeField.getText().trim();
+                                final int accountId = account.getAccountId();
+
+                                double total = quantity * cost;
+
+                                // Show total before leaving
+                                totalLabel.setText(
+                                                String.format(
+                                                                "Total: $%.2f",
+                                                                total));
+
+                                // =================================================
+                                // SAVE FORM INFORMATION
+                                // =================================================
+
+                                savedType = selectedType;
+
+                                savedEventName = eventName;
+
+                                savedLocation = location;
+
+                                savedDate = date;
+
+                                savedTime = time;
+
+                                savedQuantity = quantityText;
+
+                                savedCost = costText;
+
+                                // =================================================
+                                // CREATE RESERVATION OBJECT
+                                // BUT DO NOT ADD IT YET
+                                // =================================================
+
+                                Reservation pendingReservation;
+
+                                if (!selectedSection.isEmpty()) {
+
+                                        pendingReservation = new Reservation(
+                                                        eventName,
+                                                        location,
+                                                        date,
+                                                        time,
+                                                        quantity,
+                                                        cost,
+                                                        selectedSection);
+
+                                } else {
+
+                                        pendingReservation = new Reservation(
+                                                        eventName,
+                                                        location,
+                                                        date,
+                                                        time,
+                                                        quantity,
+                                                        cost);
+                                }
+
+                                // =================================================
+                                // OPEN PAYMENT SCREEN
+                                // =================================================
+
+                                PaymentScreen paymentScreen = new PaymentScreen(
+                                                stage,
+                                                eventName,
+                                                total,
+
+                                                // PAYMENT SUCCESS
+                                                () -> {
+
+                                                        try {
+                                                                System.out.println(
+                                                                                "Reservoir: attempting database reservation for account "
+                                                                                                + accountId);
+                                                                boolean saved = ReservationDAO.saveReservation(
+                                                                                accountId, pendingReservation,
+                                                                                bookingDate, startTime, endTime);
+                                                                if (!saved) {
+                                                                        showBookingError(
+                                                                                        "Duplicate or overlapping reservation. No booking was saved.");
+                                                                        return;
+                                                                }
+                                                        } catch (SQLException | IllegalArgumentException ex) {
+                                                                ex.printStackTrace();
+                                                                showBookingError(
+                                                                                "Could not save reservation. See NetBeans Output for details.");
+                                                                return;
+                                                        }
+                                                        try {
+                                                                ArrayList<Reservation> stored = ReservationDAO
+                                                                                .getReservations(accountId);
+                                                                reservations.clear();
+                                                                reservations.addAll(stored);
+                                                                System.out.println(
+                                                                                "Reservoir: database save committed; account reservation count = "
+                                                                                                + stored.size());
+                                                        } catch (SQLException ex) {
+                                                                // Booking was already committed; do not attempt it
+                                                                // again.
+                                                                ex.printStackTrace();
+                                                                System.out.println(
+                                                                                "Reservoir: database save committed, but refresh failed.");
+                                                                reservations.clear();
+                                                        }
+                                                        showPaymentSuccessScreen(pendingReservation);
+                                                },
+
+                                                // BACK TO RESERVATION
+                                                this::show);
+
+                                paymentScreen.show();
+
+                        } catch (NumberFormatException e) {
+
+                                messageLabel.setText(
+                                                "Please enter valid numbers.");
+                        }
+                });
+
+                // =====================================================
+                // ADD TO FAVORITES
+                // =====================================================
+
+                favoriteButton.setOnAction(action -> {
+
+                        String eventName = nameField
+                                        .getText()
+                                        .trim();
+
+                        String location = locationField
+                                        .getText()
+                                        .trim();
+
+                        String time = timeField
+                                        .getText()
+                                        .trim();
+
+                        String costText = costField
+                                        .getText()
+                                        .trim();
+
+                        if (typeBox.getValue() == null
+                                        || eventName.isEmpty()
+                                        || location.isEmpty()
+                                        || datePicker.getValue() == null
+                                        || time.isEmpty()
+                                        || costText.isEmpty()) {
+
+                                messageLabel.setText(
+                                                "Complete the event information before adding to favorites.");
+
+                                return;
+                        }
+
+                        try {
+
+                                double cost = Double.parseDouble(
+                                                costText);
+
+                                if (cost < 0) {
+
+                                        messageLabel.setText(
+                                                        "Cost cannot be negative.");
+
+                                        return;
+                                }
+
+                                String date = datePicker
+                                                .getValue()
+                                                .toString();
+
+                                Favorite favorite = new Favorite(
+                                                eventName,
+                                                location,
+                                                date,
+                                                time,
+                                                cost);
+
+                                favorites.add(
+                                                favorite);
+
+                                messageLabel.setText(
+                                                "Added to favorites!");
+
+                                favoriteButton.setDisable(
+                                                true);
+
+                                favoriteButton.setText(
+                                                "Added to Favorites");
+
+                        } catch (NumberFormatException e) {
+
+                                messageLabel.setText(
+                                                "Please enter a valid cost.");
+                        }
+                });
+
+                // =====================================================
+                // BACK
+                // =====================================================
+
+                backButton.setOnAction(
+                                action -> backToEvents.run());
+
+                // =====================================================
+                // LAYOUT
+                // =====================================================
+                HBox locationBox = new HBox(
+                                8,
+                                locationField,
+                                selectLocationButton);
+                locationBox.setAlignment(
+                                Pos.CENTER);
+
+                VBox layout = new VBox(
+                                8,
+                                titleLabel,
+                                subtitleLabel,
+
+                                typeLabel,
+                                typeBox,
+
+                                nameLabel,
+                                nameField,
+
+                                locationLabel,
+                                locationBox,
+                                dateLabel,
+                                datePicker,
+
+                                timeLabel,
+                                timeField,
+                                endTimeLabel,
+                                endTimeField,
+
+                                quantityLabel,
+                                quantityField,
+
+                                costLabel,
+                                costField,
+
+                                seatingButton,
+                                seatingLabel,
+
+                                totalLabel,
+
+                                paymentButton,
+                                favoriteButton,
+
+                                messageLabel,
+                                backButton);
+
+                layout.setAlignment(
+                                Pos.CENTER);
+
+                layout.setPadding(
+                                new Insets(25));
+
+                ScrollPane scrollPane = new ScrollPane(layout);
+                scrollPane.setFitToWidth(true);
+                Scene scene = new Scene(scrollPane, 900, 800);
+
+                stage.setScene(scene);
+        }
+
+        // =========================================================
+        // CHECK FOR EXISTING RESERVATION
+        // =========================================================
+
+        private static LocalTime parseBookingTime(String value) {
+                DateTimeFormatter twelveHour = new DateTimeFormatterBuilder()
+                                .parseCaseInsensitive().appendPattern("h:mm a")
+                                .toFormatter(Locale.US).withResolverStyle(ResolverStyle.STRICT);
+                try {
+                        return LocalTime.parse(value.trim(), twelveHour);
+                } catch (DateTimeParseException ex) {
+                        return LocalTime.parse(value.trim(), DateTimeFormatter.ISO_LOCAL_TIME);
+                }
+        }
+
+        private void showBookingError(String message) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setHeaderText("Reservation not confirmed");
+                alert.setContentText(message);
+                alert.showAndWait();
+                show();
+        }
+
+        private boolean alreadyReserved(
+                        String eventName,
+                        String location,
+                        String date,
+                        String time) {
+
+                for (Reservation reservation : reservations) {
+
+                        boolean sameEvent = reservation
+                                        .getEventName()
+                                        .equalsIgnoreCase(
+                                                        eventName);
+
+                        boolean sameLocation = reservation
+                                        .getLocation()
+                                        .equalsIgnoreCase(
+                                                        location);
+
+                        boolean sameDate = reservation
+                                        .getDate()
+                                        .equals(
+                                                        date);
+
+                        boolean sameTime = reservation
+                                        .getTime()
+                                        .equalsIgnoreCase(
+                                                        time);
+
+                        if (sameEvent
+                                        && sameLocation
+                                        && sameDate
+                                        && sameTime) {
+
+                                return true;
+                        }
                 }
 
-                String date =
-                        datePicker
-                                .getValue()
-                                .toString();
-
-                Favorite favorite =
-                        new Favorite(
-                                eventName,
-                                location,
-                                date,
-                                time,
-                                cost
-                        );
-
-                favorites.add(
-                        favorite
-                );
-
-                messageLabel.setText(
-                        "Added to favorites!"
-                );
-
-                favoriteButton.setDisable(
-                        true
-                );
-
-                favoriteButton.setText(
-                        "Added to Favorites"
-                );
-
-            } catch (NumberFormatException e) {
-
-                messageLabel.setText(
-                        "Please enter a valid cost."
-                );
-            }
-        });
-
-        // =====================================================
-        // BACK
-        // =====================================================
-
-        backButton.setOnAction(
-                action ->
-                        backToEvents.run()
-        );
-
-        // =====================================================
-        // LAYOUT
-        // =====================================================
-        HBox locationBox =
-                new HBox(
-                        8,
-                        locationField,
-                        selectLocationButton
-                );
-        locationBox.setAlignment(
-                Pos.CENTER
-        );
-
-        VBox layout =
-                new VBox(
-                        8,
-                        titleLabel,
-                        subtitleLabel,
-
-                        typeLabel,
-                        typeBox,
-
-                        nameLabel,
-                        nameField,
-
-                        locationLabel,
-                        locationBox,
-                        dateLabel,
-                        datePicker,
-
-                        timeLabel,
-                        timeField,
-                        endTimeLabel,
-                        endTimeField,
-
-                        quantityLabel,
-                        quantityField,
-
-                        costLabel,
-                        costField,
-
-                        seatingButton,
-                        seatingLabel,
-
-                        totalLabel,
-
-                        paymentButton,
-                        favoriteButton,
-
-                        messageLabel,
-                        backButton
-                );
-
-        layout.setAlignment(
-                Pos.CENTER
-        );
-
-        layout.setPadding(
-                new Insets(25)
-        );
-
-        ScrollPane scrollPane = new ScrollPane(layout);
-        scrollPane.setFitToWidth(true);
-        Scene scene = new Scene(scrollPane, 900, 800);
-
-        stage.setScene(scene);
-    }
-
-    // =========================================================
-    // CHECK FOR EXISTING RESERVATION
-    // =========================================================
-
-    private static LocalTime parseBookingTime(String value) {
-        DateTimeFormatter twelveHour = new DateTimeFormatterBuilder()
-                .parseCaseInsensitive().appendPattern("h:mm a")
-                .toFormatter(Locale.US).withResolverStyle(ResolverStyle.STRICT);
-        try {
-            return LocalTime.parse(value.trim(), twelveHour);
-        } catch (DateTimeParseException ex) {
-            return LocalTime.parse(value.trim(), DateTimeFormatter.ISO_LOCAL_TIME);
-        }
-    }
-
-    private void showBookingError(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setHeaderText("Reservation not confirmed");
-        alert.setContentText(message);
-        alert.showAndWait();
-        show();
-    }
-
-    private boolean alreadyReserved(
-            String eventName,
-            String location,
-            String date,
-            String time) {
-
-        for (Reservation reservation : reservations) {
-
-            boolean sameEvent =
-                    reservation
-                            .getEventName()
-                            .equalsIgnoreCase(
-                                    eventName
-                            );
-
-            boolean sameLocation =
-                    reservation
-                            .getLocation()
-                            .equalsIgnoreCase(
-                                    location
-                            );
-
-            boolean sameDate =
-                    reservation
-                            .getDate()
-                            .equals(
-                                    date
-                            );
-
-            boolean sameTime =
-                    reservation
-                            .getTime()
-                            .equalsIgnoreCase(
-                                    time
-                            );
-
-            if (sameEvent
-                    && sameLocation
-                    && sameDate
-                    && sameTime) {
-
-                return true;
-            }
+                return false;
         }
 
-        return false;
-    }
+        // =========================================================
+        // PAYMENT SUCCESS SCREEN
+        // =========================================================
 
-    // =========================================================
-    // PAYMENT SUCCESS SCREEN
-    // =========================================================
+        private void showPaymentSuccessScreen(
+                        Reservation reservation) {
 
-    private void showPaymentSuccessScreen(
-            Reservation reservation) {
+                Label titleLabel = new Label(
+                                "BOOKING CONFIRMED!");
 
-        Label titleLabel =
-                new Label(
-                        "BOOKING CONFIRMED!"
-                );
+                titleLabel.setStyle(
+                                "-fx-font-size: 30px;"
+                                                + "-fx-font-weight: bold;");
 
-        titleLabel.setStyle(
-                "-fx-font-size: 30px;"
-                + "-fx-font-weight: bold;"
-        );
+                Label confirmationLabel = new Label(
+                                "Your reservation has been confirmed and saved.");
 
-        Label confirmationLabel =
-                new Label(
-                        "Your reservation has been confirmed and saved."
-                );
+                confirmationLabel.setStyle(
+                                "-fx-font-size: 18px;");
 
-        confirmationLabel.setStyle(
-                "-fx-font-size: 18px;"
-        );
+                Label eventLabel = new Label(
+                                "Event: "
+                                                + reservation.getEventName());
 
-        Label eventLabel =
-                new Label(
-                        "Event: "
-                        + reservation.getEventName()
-                );
+                Label locationLabel = new Label(
+                                "Location: "
+                                                + reservation.getLocation());
 
-Label locationLabel =
-        new Label(
-                "Location: "
-                + reservation.getLocation()
-        );
+                Label dateLabel = new Label(
+                                "Date: "
+                                                + reservation.getDate());
 
-        Label dateLabel =
-                new Label(
-                        "Date: "
-                        + reservation.getDate()
-                );
+                Label timeLabel = new Label(
+                                "Time: "
+                                                + reservation.getTime());
 
-        Label timeLabel =
-                new Label(
-                        "Time: "
-                        + reservation.getTime()
-                );
+                Label quantityLabel = new Label(
+                                "Tickets/People: "
+                                                + reservation.getNumberOfTickets());
 
-        Label quantityLabel =
-                new Label(
-                        "Tickets/People: "
-                        + reservation.getNumberOfTickets()
-                );
+                Label totalLabel = new Label(
+                                String.format(
+                                                "Total Paid: $%.2f",
+                                                reservation.getTotalCost()));
 
-        Label totalLabel =
-                new Label(
-                        String.format(
-                                "Total Paid: $%.2f",
-                                reservation.getTotalCost()
-                        )
-                );
+                totalLabel.setStyle(
+                                "-fx-font-size: 18px;"
+                                                + "-fx-font-weight: bold;");
 
-        totalLabel.setStyle(
-                "-fx-font-size: 18px;"
-                + "-fx-font-weight: bold;"
-        );
+                VBox informationBox = new VBox(
+                                8,
+                                eventLabel,
+                                locationLabel,
+                                dateLabel,
+                                timeLabel);
 
-        VBox informationBox =
-                new VBox(
-                        8,
-                        eventLabel,
-                        locationLabel,
-                        dateLabel,
-                        timeLabel
-                );
+                informationBox.setAlignment(
+                                Pos.CENTER);
 
-        informationBox.setAlignment(
-                Pos.CENTER
-        );
+                // Show seating section only when applicable
+                if (reservation.hasSection()) {
 
-        // Show seating section only when applicable
-        if (reservation.hasSection()) {
+                        Label sectionLabel = new Label(
+                                        "Section: "
+                                                        + reservation.getSection());
 
-            Label sectionLabel =
-                    new Label(
-                            "Section: "
-                            + reservation.getSection()
-                    );
+                        sectionLabel.setStyle(
+                                        "-fx-font-weight: bold;");
 
-            sectionLabel.setStyle(
-                    "-fx-font-weight: bold;"
-            );
+                        informationBox
+                                        .getChildren()
+                                        .add(sectionLabel);
+                }
 
-            informationBox
-                    .getChildren()
-                    .add(sectionLabel);
+                informationBox
+                                .getChildren()
+                                .addAll(
+                                                quantityLabel,
+                                                totalLabel);
+
+                Button doneButton = new Button(
+                                "Done");
+
+                doneButton.setPrefSize(
+                                250,
+                                40);
+
+                doneButton.setOnAction(action -> {
+
+                        clearSavedInformation();
+
+                        backToEvents.run();
+                });
+
+                VBox layout = new VBox(
+                                20,
+                                titleLabel,
+                                confirmationLabel,
+                                informationBox,
+                                doneButton);
+
+                layout.setAlignment(
+                                Pos.CENTER);
+
+                layout.setPadding(
+                                new Insets(30));
+
+                Scene scene = new Scene(
+                                layout,
+                                900,
+                                650);
+
+                stage.setScene(scene);
         }
 
-        informationBox
-                .getChildren()
-                .addAll(
-                        quantityLabel,
-                        totalLabel
-                );
+        // =========================================================
+        // CLEAR FORM AFTER SUCCESSFUL RESERVATION
+        // =========================================================
 
-        Button doneButton =
-                new Button(
-                        "Done"
-                );
+        private void clearSavedInformation() {
 
-        doneButton.setPrefSize(
-                250,
-                40
-        );
-
-        doneButton.setOnAction(action -> {
-
-            clearSavedInformation();
-
-            backToEvents.run();
-        });
-
-        VBox layout =
-                new VBox(
-                        20,
-                        titleLabel,
-                        confirmationLabel,
-                        informationBox,
-                        doneButton
-                );
-
-        layout.setAlignment(
-                Pos.CENTER
-        );
-
-        layout.setPadding(
-                new Insets(30)
-        );
-
-        Scene scene =
-                new Scene(
-                        layout,
-                        900,
-                        650
-                );
-
-        stage.setScene(scene);
-    }
-
-    // =========================================================
-    // CLEAR FORM AFTER SUCCESSFUL RESERVATION
-    // =========================================================
-
-    private void clearSavedInformation() {
-
-        savedType = "";
-        savedEventName = "";
-        savedLocation = "";
-        savedDate = "";
-        savedTime = "";
-        savedQuantity = "";
-        savedCost = "";
-        savedEndTime = "";
-        selectedSection = "";
-    }
+                savedType = "";
+                savedEventName = "";
+                savedLocation = "";
+                savedDate = "";
+                savedTime = "";
+                savedQuantity = "";
+                savedCost = "";
+                savedEndTime = "";
+                selectedSection = "";
+        }
 }
-
