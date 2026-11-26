@@ -1292,7 +1292,7 @@ costField.textProperty().addListener((observable, oldValue, newValue) -> {
 
         Label titleLabel =
                 new Label(
-                        "BOOKING SAVED TO MYSQL!"
+                        "BOOKING CONFIRMED!"
                 );
 
         titleLabel.setStyle(
@@ -1302,7 +1302,7 @@ costField.textProperty().addListener((observable, oldValue, newValue) -> {
 
         Label confirmationLabel =
                 new Label(
-                        "Your reservation has been confirmed and saved to MySQL."
+                        "Your reservation has been confirmed and saved."
                 );
 
         confirmationLabel.setStyle(
@@ -1451,3 +1451,4 @@ Label locationLabel =
         selectedSection = "";
     }
 }
+
